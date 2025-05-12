@@ -12,6 +12,7 @@ import { TaskDate } from "./task-date";
 
 import { useEditTaskModal } from "../hooks/use-edit-task-modal";
 import { Task } from "../types";
+import { TaskDescription } from "./task-description";
 
 interface TaskOverviewProps {
   task: Task;
@@ -36,14 +37,19 @@ export const TaskOverview = ({ task }: TaskOverviewProps) => {
             <MemberAvatar name={task.assignee.name} className="size-6" />
             <p className="text-sm font-medium">{task.assignee.name}</p>
           </OverviewProperty>
+          <OverviewProperty label="Start Date">
+          <TaskDate value={task.startDate} className="text-xs" /> {/* No color logic for start date */}
+          </OverviewProperty>
           <OverviewProperty label="Due Date">
-            <TaskDate value={task.dueDate} className="text-sm font-medium" />
+          <TaskDate value={task.dueDate} className="text-xs" isDueDate={true} /> {/* Color logic applied to due date */}
           </OverviewProperty>
           <OverviewProperty label="Status">
             <Badge variant={task.status}>
               {snakeCaseToTitleCase(task.status)}
             </Badge>
           </OverviewProperty>
+          <DottedSeparator className="my-4" />
+          <TaskDescription task={task} />
         </div>
       </div>
     </div>

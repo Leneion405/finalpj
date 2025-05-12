@@ -52,6 +52,7 @@ export const CreateTaskForm = ({
     resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
     defaultValues: {
       workspaceId,
+      startDate: new Date(),
     },
   });
 
@@ -92,6 +93,20 @@ export const CreateTaskForm = ({
                   </FormItem>
                 )}
               />
+              <div className="grid grid-cols-2 gap-4">
+               <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Date</FormLabel>
+                    <FormControl>
+                    <DatePicker value={field.value} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="dueDate"
@@ -105,6 +120,7 @@ export const CreateTaskForm = ({
                   </FormItem>
                 )}
               />
+              </div>
               <FormField
                 control={form.control}
                 name="assigneeId"

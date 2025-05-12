@@ -10,6 +10,7 @@ interface UseGetTasksProps {
   status?: TaskStatus | null;
   assigneeId?: string | null;
   dueDate?: string | null;
+  startDate?: string | null;  
   search?: string | null;
 }
 
@@ -18,6 +19,7 @@ export const useGetTasks = ({
   projectId,
   status,
   assigneeId,
+  startDate,
   dueDate,
   search,
 }: UseGetTasksProps) => {
@@ -28,6 +30,7 @@ export const useGetTasks = ({
       projectId,
       status,
       assigneeId,
+      startDate,
       dueDate,
       search,
     ],
@@ -39,6 +42,7 @@ export const useGetTasks = ({
           status: status ?? undefined,
           assigneeId: assigneeId ?? undefined,
           dueDate: dueDate ?? undefined,
+          startDate: startDate ?? undefined,
           search: search ?? undefined,
         },
       });

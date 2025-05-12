@@ -50,6 +50,7 @@ const app = new Hono()
         assigneeId: z.string().nullish(),
         status: z.nativeEnum(TaskStatus).nullish(),
         search: z.string().nullish(),
+        startDate: z.string().nullish(),
         dueDate: z.string().nullish(),
       })
     ),
@@ -58,7 +59,7 @@ const app = new Hono()
       const databases = c.get("databases");
       const user = c.get("user");
 
-      const { workspaceId, projectId, assigneeId, status, search, dueDate } =
+      const { workspaceId, projectId, assigneeId, status, search,startDate, dueDate } =
         c.req.valid("query");
 
       const member = await getMember({
@@ -89,6 +90,10 @@ const app = new Hono()
       if (assigneeId) {
         console.log("assigneeId: ", assigneeId);
         query.push(Query.equal("assigneeId", assigneeId));
+      }
+      if (startDate) {
+        console.log("startDate: ", startDate);
+        query.push(Query.equal("startDate", startDate));
       }
 
       if (dueDate) {
@@ -160,7 +165,7 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-      const { name, status, workspaceId, projectId, dueDate, assigneeId } =
+      const { name, status, workspaceId, projectId, startDate, dueDate, assigneeId } =
         c.req.valid("json");
 
       const member = await getMember({
@@ -198,6 +203,7 @@ const app = new Hono()
           status,
           workspaceId,
           projectId,
+          startDate: startDate || new Date().toISOString(), // Add startDate with default
           dueDate,
           assigneeId,
           position: newPosition,
@@ -214,7 +220,7 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-      const { name, status, projectId, dueDate, assigneeId, description } =
+      const { name, status, projectId,startDate, dueDate, assigneeId, description } =
         c.req.valid("json");
 
       const { taskId } = c.req.param();
@@ -243,6 +249,7 @@ const app = new Hono()
           name,
           status,
           projectId,
+          startDate,
           dueDate,
           assigneeId,
           description,
