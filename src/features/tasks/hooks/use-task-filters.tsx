@@ -1,5 +1,6 @@
-import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
+// src/features/tasks/hooks/use-task-filters.tsx
 
+import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 import { TaskStatus } from "../types";
 
 export const useTaskFilters = () => {
