@@ -9,6 +9,7 @@ import { MemberAvatar } from "@/features/members/components/member-avatar";
 
 import { OverviewProperty } from "./overview-property";
 import { TaskDate } from "./task-date";
+import { TaskDescription } from "./task-description";
 
 import { useEditTaskModal } from "../hooks/use-edit-task-modal";
 import { Task } from "../types";
@@ -36,6 +37,9 @@ export const TaskOverview = ({ task }: TaskOverviewProps) => {
             <MemberAvatar name={task.assignee.name} className="size-6" />
             <p className="text-sm font-medium">{task.assignee.name}</p>
           </OverviewProperty>
+          <OverviewProperty label="Start Date">
+            <TaskDate value={task.startDate} className="text-sm font-medium" />
+          </OverviewProperty>
           <OverviewProperty label="Due Date">
             <TaskDate value={task.dueDate} className="text-sm font-medium" />
           </OverviewProperty>
@@ -44,6 +48,8 @@ export const TaskOverview = ({ task }: TaskOverviewProps) => {
               {snakeCaseToTitleCase(task.status)}
             </Badge>
           </OverviewProperty>
+          <DottedSeparator className="my-4" />
+          <TaskDescription task={task} />
         </div>
       </div>
     </div>

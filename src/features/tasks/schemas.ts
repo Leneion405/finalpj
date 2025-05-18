@@ -1,3 +1,4 @@
+// src/features/tasks/schemas.ts
 import { z } from "zod";
 
 import { TaskStatus } from "./types";
@@ -8,6 +9,7 @@ export const createTaskSchema = z.object({
   workspaceId: z.string().trim().min(1, "Required"),
   projectId: z.string().trim().min(1, "Required"),
   dueDate: z.coerce.date(),
+  startDate: z.coerce.date().default(() => new Date()), // Add this line with default to current date
   assigneeId: z.string().trim().min(1, "Required"),
   description: z.string().optional(),
 });

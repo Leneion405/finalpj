@@ -1,3 +1,4 @@
+// src/features/tasks/types.ts
 import { Models } from "node-appwrite";
 
 export enum TaskStatus {
@@ -16,5 +17,6 @@ export type Task = Models.Document & {
   projectId: string;
   position: number;
   dueDate: string;
+  startDate: string; // Add this line
   description?: string;
 };

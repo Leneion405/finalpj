@@ -16,6 +16,7 @@ import { DataCalendar } from "./data-calendar";
 import { DataFilters } from "./data-filters";
 import { DataKanban } from "./data-kanban";
 import { DataTable } from "./data-table";
+import { DataGantt } from "./data-gantt";
 
 import { useGetTasks } from "../api/use-get-tasks";
 import { useCreateTaskModal } from "../hooks/use-create-task-modal";
@@ -30,7 +31,7 @@ interface TaskViewSwitcherProps {
 export const TaskViewSwitcher = ({
   hideProjectFilter,
 }: TaskViewSwitcherProps) => {
-  const [{ status, assigneeId, projectId, dueDate }] = useTaskFilters();
+  const [{ status, assigneeId, projectId, startDate, dueDate }] = useTaskFilters();
   const [view, setView] = useQueryState("task-view", { defaultValue: "table" });
   const { mutate: bulkUpdate } = useBulkUpdateTasks();
 
@@ -41,6 +42,7 @@ export const TaskViewSwitcher = ({
     projectId: paramProjectId || projectId,
     assigneeId,
     status,
+    startDate,
     dueDate,
   });
 
@@ -71,6 +73,9 @@ export const TaskViewSwitcher = ({
             <TabsTrigger className="h-8 w-full lg:w-auto" value="calendar">
               Calendar
             </TabsTrigger>
+            <TabsTrigger className="h-8 w-full lg:w-auto" value="gantt">
+              Gantt
+            </TabsTrigger>
           </TabsList>
           <Button onClick={open} size="sm" className="w-full lg:w-auto">
             <PlusIcon className="size-4 mr-2" />
@@ -97,6 +102,9 @@ export const TaskViewSwitcher = ({
             </TabsContent>
             <TabsContent value="calendar" className="mt-0 h-full pb-4">
               <DataCalendar data={tasks?.documents ?? []} />
+            </TabsContent>
+            <TabsContent value="gantt" className="mt-0 h-full pb-4">
+              <DataGantt data={tasks?.documents ?? []} />
             </TabsContent>
           </>
         )}

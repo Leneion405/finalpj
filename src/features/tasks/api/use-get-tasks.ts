@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-
 import { client } from "@/lib/rpc";
-
 import { TaskStatus } from "../types";
 
 interface UseGetTasksProps {
@@ -10,6 +8,7 @@ interface UseGetTasksProps {
   status?: TaskStatus | null;
   assigneeId?: string | null;
   dueDate?: string | null;
+  startDate?: string | null; // Add this line
   search?: string | null;
 }
 
@@ -19,6 +18,7 @@ export const useGetTasks = ({
   status,
   assigneeId,
   dueDate,
+  startDate, // Add this line
   search,
 }: UseGetTasksProps) => {
   const query = useQuery({
@@ -29,6 +29,7 @@ export const useGetTasks = ({
       status,
       assigneeId,
       dueDate,
+      startDate, // Add this line
       search,
     ],
     queryFn: async () => {
@@ -39,19 +40,19 @@ export const useGetTasks = ({
           status: status ?? undefined,
           assigneeId: assigneeId ?? undefined,
           dueDate: dueDate ?? undefined,
+          startDate: startDate ?? undefined, // Add this line
           search: search ?? undefined,
         },
       });
-
+      
       if (!response.ok) {
         throw new Error("Failed to fetch tasks.");
       }
-
+      
       const { data } = await response.json();
-
       return data;
     },
   });
-
+  
   return query;
 };
