@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useQueryState } from "nuqs";
 import { TaskStatus } from "../types";
 
@@ -46,4 +47,20 @@ export const useTaskFilters = () => {
     { status: status as TaskStatus | null, assigneeId, projectId, dueDate, startDate }, // Add startDate
     setFilters,
   ] as const;
+=======
+// src/features/tasks/hooks/use-task-filters.tsx
+
+import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
+import { TaskStatus } from "../types";
+
+export const useTaskFilters = () => {
+  return useQueryStates({
+    projectId: parseAsString,
+    status: parseAsStringEnum(Object.values(TaskStatus)),
+    assigneeId: parseAsString,
+    search: parseAsString,
+    startDate: parseAsString,
+    dueDate: parseAsString,
+  });
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
 };

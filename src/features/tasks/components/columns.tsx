@@ -31,7 +31,6 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       const name = row.original.name;
-
       return <p className="line-clamp-1">{name}</p>;
     },
   },
@@ -50,7 +49,6 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       const project = row.original.project;
-
       return (
         <div className="flex items-center gap-x-2 text-sm font-medium">
           <ProjectAvatar
@@ -78,7 +76,6 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       const assignee = row.original.assignee;
-
       return (
         <div className="flex items-center gap-x-2 text-sm font-medium">
           <MemberAvatar
@@ -92,7 +89,11 @@ export const columns: ColumnDef<Task>[] = [
     },
   },
   {
+<<<<<<< HEAD
     accessorKey: "startDate",
+=======
+    accessorKey: "startDate",  // Add this column for startDate
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
     header: ({ column }) => {
       return (
         <Button
@@ -105,8 +106,13 @@ export const columns: ColumnDef<Task>[] = [
       );
     },
     cell: ({ row }) => {
+<<<<<<< HEAD
       const startDate = row.original.startDate;
       return <TaskDate value={startDate} />;
+=======
+      const startDate = row.original.startDate;  // Get startDate
+      return <TaskDate value={startDate} className="text-xs"/>;  // Display formatted startDate
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
     },
   },
   {
@@ -124,8 +130,7 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       const dueDate = row.original.dueDate;
-
-      return <TaskDate value={dueDate} />;
+      return <TaskDate value={dueDate} className="text-xs" isDueDate={true} />;
     },
   },
   {
@@ -143,7 +148,6 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       const status = row.original.status;
-
       return <Badge variant={status}>{snakeCaseToTitleCase(status)}</Badge>;
     },
   },
@@ -152,7 +156,6 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       const id = row.original.$id;
       const projectId = row.original.projectId;
-
       return (
         <TaskActions id={id} projectId={projectId}>
           <Button variant="ghost" className="size-8 p-0">

@@ -8,7 +8,11 @@ interface UseGetTasksProps {
   status?: TaskStatus | null;
   assigneeId?: string | null;
   dueDate?: string | null;
+<<<<<<< HEAD
   startDate?: string | null; // Add this line
+=======
+  startDate?: string | null;  
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
   search?: string | null;
 }
 
@@ -17,6 +21,7 @@ export const useGetTasks = ({
   projectId,
   status,
   assigneeId,
+  startDate,
   dueDate,
   startDate, // Add this line
   search,
@@ -28,6 +33,7 @@ export const useGetTasks = ({
       projectId,
       status,
       assigneeId,
+      startDate,
       dueDate,
       startDate, // Add this line
       search,
@@ -40,7 +46,11 @@ export const useGetTasks = ({
           status: status ?? undefined,
           assigneeId: assigneeId ?? undefined,
           dueDate: dueDate ?? undefined,
+<<<<<<< HEAD
           startDate: startDate ?? undefined, // Add this line
+=======
+          startDate: startDate ?? undefined,
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
           search: search ?? undefined,
         },
       });

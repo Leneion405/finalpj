@@ -43,7 +43,11 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
     label: member.name,
   }));
 
+<<<<<<< HEAD
   const [{ status, assigneeId, projectId, dueDate,startDate }, setFilters] =
+=======
+  const [{ status, assigneeId, projectId,startDate, dueDate }, setFilters] =
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
     useTaskFilters();
 
   const onStatusChange = (value: string) => {
@@ -157,6 +161,19 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
       {/* Due Date filter */}
       <div className="w-[180px]">
       <DatePicker
+<<<<<<< HEAD
+=======
+        placeholder="start date"
+        className="h-8 w-full lg:w-auto"
+        value={startDate ? new Date(startDate) : undefined}
+        onChange={(date) => {
+          setFilters({ startDate: date ? date.toISOString() : null });
+        }}
+      />
+      <DatePicker
+        placeholder="Due date"
+        className="h-8 w-full lg:w-auto"
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
         value={dueDate ? new Date(dueDate) : undefined}
         onChange={(date) => {
           setFilters({

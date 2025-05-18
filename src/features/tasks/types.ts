@@ -9,14 +9,27 @@ export enum TaskStatus {
   DONE = "DONE",
 }
 
-export type Task = Models.Document & {
-  name: string;
+export interface Task extends Models.Document {
+  title: string;
+  description: string;
   status: TaskStatus;
-  workspaceId: string;
-  assigneeId: string;
+  assigneeId?: string;
   projectId: string;
+<<<<<<< HEAD
   position: number;
   dueDate: string;
   startDate: string; // Add this line
   description?: string;
 };
+=======
+  workspaceId: string;
+  startDate?: string; // ISO date string format
+  dueDate?: string; // ISO date string format
+}
+
+export interface TaskWithProject extends Task {
+  project: {
+    name: string;
+  };
+}
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56

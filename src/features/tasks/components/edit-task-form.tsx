@@ -54,12 +54,17 @@ export const EditTaskForm = ({
     ),
     defaultValues: {
       ...initialValues,
+<<<<<<< HEAD
       dueDate: initialValues.dueDate
         ? new Date(initialValues.dueDate)
         : undefined,
       startDate: initialValues.startDate
         ? new Date(initialValues.startDate)
         : new Date(), // Add this line
+=======
+      dueDate: initialValues.dueDate ? new Date(initialValues.dueDate) : undefined,
+      startDate: initialValues.startDate ? new Date(initialValues.startDate) : new Date(), // Ensure the default start date is set
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
     },
   });
 
@@ -103,6 +108,7 @@ export const EditTaskForm = ({
                   </FormItem>
                 )}
               />
+<<<<<<< HEAD
               <FormField
               control={form.control}
               name="startDate"
@@ -135,6 +141,37 @@ export const EditTaskForm = ({
                 </FormItem>
               )}
             />
+=======
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        {/* Pass value and onChange directly */}
+                        <DatePicker value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Due Date</FormLabel>
+                      <FormControl>
+                        <DatePicker value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
               <FormField
                 control={form.control}
                 name="assigneeId"
@@ -155,10 +192,7 @@ export const EditTaskForm = ({
                         {memberOptions.map((member) => (
                           <SelectItem key={member.id} value={member.id}>
                             <div className="flex items-center gap-x-2">
-                              <MemberAvatar
-                                className="size-6"
-                                name={member.name}
-                              />
+                              <MemberAvatar className="size-6" name={member.name} />
                               {member.name}
                             </div>
                           </SelectItem>
@@ -173,7 +207,7 @@ export const EditTaskForm = ({
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Assignee</FormLabel>
+                    <FormLabel>Status</FormLabel>
                     <Select
                       defaultValue={field.value}
                       onValueChange={field.onChange}

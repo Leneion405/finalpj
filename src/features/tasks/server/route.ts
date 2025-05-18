@@ -91,6 +91,10 @@ const app = new Hono()
         console.log("assigneeId: ", assigneeId);
         query.push(Query.equal("assigneeId", assigneeId));
       }
+      if (startDate) {
+        console.log("startDate: ", startDate);
+        query.push(Query.equal("startDate", startDate));
+      }
 
       if (startDate) {
         console.log("startDate: ", startDate);
@@ -166,7 +170,11 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
+<<<<<<< HEAD
       const { name, status, workspaceId, projectId,startDate, dueDate, assigneeId } =
+=======
+      const { name, status, workspaceId, projectId, startDate, dueDate, assigneeId } =
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
         c.req.valid("json");
 
       const member = await getMember({
@@ -204,7 +212,11 @@ const app = new Hono()
           status,
           workspaceId,
           projectId,
+<<<<<<< HEAD
           startDate,
+=======
+          startDate: startDate || new Date().toISOString(), // Add startDate with default
+>>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
           dueDate,
           assigneeId,
           position: newPosition,
