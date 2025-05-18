@@ -7,21 +7,20 @@ import {
   startOfWeek,
   addMonths,
   subMonths,
+  isValid,
 } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 
 import { Button } from "@/components/ui/button";
-
 import { EventCard } from "./event-card";
-
 import { Task } from "../types";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./data-calendar.css";
 
 const locales = {
-  "en-Us": enUS,
+  "en-US": enUS, // Fixed locale key typo (should be "en-US" not "en-Us")
 };
 
 const localizer = dateFnsLocalizer({
@@ -67,19 +66,26 @@ interface DataCalendarProps {
 }
 
 export const DataCalendar = ({ data }: DataCalendarProps) => {
-  const [value, setValue] = useState(
-    data.length > 0 ? new Date(data[0].dueDate) : new Date()
-  );
+  // Only use a valid date for initial value
+  const initialDate =
+    data.length > 0 && data[0].dueDate && isValid(new Date(data[0].dueDate))
+      ? new Date(data[0].dueDate)
+      : new Date();
 
-  const events = data.map((task) => ({
-    start: new Date(task.dueDate),
-    end: new Date(task.dueDate),
-    title: task.name,
-    project: task.project,
-    assignee: task.assignee,
-    status: task.status,
-    id: task.$id,
-  }));
+  const [value, setValue] = useState(initialDate);
+
+  // Only add events with valid due dates
+  const events = data
+    .filter((task) => task.dueDate && isValid(new Date(task.dueDate)))
+    .map((task) => ({
+      start: new Date(task.dueDate!),
+      end: new Date(task.dueDate!),
+      title: task.name,
+      project: task.project,
+      assignee: task.assignee,
+      status: task.status,
+      id: task.$id,
+    }));
 
   const handleNavigate = (action: "PREV" | "NEXT" | "TODAY") => {
     if (action === "PREV") {

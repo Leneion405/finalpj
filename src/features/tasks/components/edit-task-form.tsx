@@ -54,17 +54,8 @@ export const EditTaskForm = ({
     ),
     defaultValues: {
       ...initialValues,
-<<<<<<< HEAD
-      dueDate: initialValues.dueDate
-        ? new Date(initialValues.dueDate)
-        : undefined,
-      startDate: initialValues.startDate
-        ? new Date(initialValues.startDate)
-        : new Date(), // Add this line
-=======
       dueDate: initialValues.dueDate ? new Date(initialValues.dueDate) : undefined,
-      startDate: initialValues.startDate ? new Date(initialValues.startDate) : new Date(), // Ensure the default start date is set
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
+      startDate: initialValues.startDate ? new Date(initialValues.startDate) : new Date(),
     },
   });
 
@@ -108,40 +99,6 @@ export const EditTaskForm = ({
                   </FormItem>
                 )}
               />
-<<<<<<< HEAD
-              <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-              <FormField
-              control={form.control}
-              name="dueDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Due Date</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-=======
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -150,7 +107,6 @@ export const EditTaskForm = ({
                     <FormItem>
                       <FormLabel>Start Date</FormLabel>
                       <FormControl>
-                        {/* Pass value and onChange directly */}
                         <DatePicker value={field.value} onChange={field.onChange} />
                       </FormControl>
                       <FormMessage />
@@ -171,7 +127,6 @@ export const EditTaskForm = ({
                   )}
                 />
               </div>
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
               <FormField
                 control={form.control}
                 name="assigneeId"

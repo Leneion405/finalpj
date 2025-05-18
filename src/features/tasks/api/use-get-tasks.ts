@@ -8,11 +8,7 @@ interface UseGetTasksProps {
   status?: TaskStatus | null;
   assigneeId?: string | null;
   dueDate?: string | null;
-<<<<<<< HEAD
-  startDate?: string | null; // Add this line
-=======
-  startDate?: string | null;  
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
+  startDate?: string | null;
   search?: string | null;
 }
 
@@ -23,7 +19,6 @@ export const useGetTasks = ({
   assigneeId,
   startDate,
   dueDate,
-  startDate, // Add this line
   search,
 }: UseGetTasksProps) => {
   const query = useQuery({
@@ -35,7 +30,6 @@ export const useGetTasks = ({
       assigneeId,
       startDate,
       dueDate,
-      startDate, // Add this line
       search,
     ],
     queryFn: async () => {
@@ -46,23 +40,19 @@ export const useGetTasks = ({
           status: status ?? undefined,
           assigneeId: assigneeId ?? undefined,
           dueDate: dueDate ?? undefined,
-<<<<<<< HEAD
-          startDate: startDate ?? undefined, // Add this line
-=======
           startDate: startDate ?? undefined,
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
           search: search ?? undefined,
         },
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch tasks.");
       }
-      
+
       const { data } = await response.json();
       return data;
     },
   });
-  
+
   return query;
 };

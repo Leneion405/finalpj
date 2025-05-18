@@ -30,8 +30,7 @@ export const KanbanCard = ({ task }: KanbanCardProps) => {
           fallbackClassName="text-[10px]"
         />
         <div className="size-1 rounded-full bg-neutral-300" />
-        <TaskDate value={task.dueDate} className="text-xs" isDueDate={true} /> {/* Color logic applied to due date */}
-
+        <TaskDate value={task.dueDate ?? ""} className="text-xs" isDueDate={true} />
       </div>
       <div className="flex items-center gap-x-1.5">
         <ProjectAvatar

@@ -10,26 +10,21 @@ export enum TaskStatus {
 }
 
 export interface Task extends Models.Document {
+  // Required
   title: string;
-  description: string;
   status: TaskStatus;
-  assigneeId?: string;
   projectId: string;
-<<<<<<< HEAD
-  position: number;
-  dueDate: string;
-  startDate: string; // Add this line
-  description?: string;
-};
-=======
   workspaceId: string;
+  position: number;
+  description?: string;
+  assigneeId?: string;
   startDate?: string; // ISO date string format
-  dueDate?: string; // ISO date string format
+  dueDate?: string;   // ISO date string format
 }
 
 export interface TaskWithProject extends Task {
   project: {
     name: string;
+    // Add other project fields if needed
   };
 }
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56

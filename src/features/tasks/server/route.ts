@@ -14,6 +14,7 @@ import { createTaskSchema } from "../schemas";
 import { Task, TaskStatus } from "../types";
 
 const app = new Hono()
+  // DELETE task
   .delete("/:taskId", sessionMiddleware, async (c) => {
     const user = c.get("user");
     const databases = c.get("databases");
@@ -39,6 +40,8 @@ const app = new Hono()
 
     return c.json({ data: { $id: task.$id } });
   })
+
+  // GET list of tasks (with filtering)
   .get(
     "/",
     sessionMiddleware,
@@ -59,8 +62,15 @@ const app = new Hono()
       const databases = c.get("databases");
       const user = c.get("user");
 
-      const { workspaceId, projectId, assigneeId, status, search,startDate, dueDate } =
-        c.req.valid("query");
+      const {
+        workspaceId,
+        projectId,
+        assigneeId,
+        status,
+        search,
+        startDate,
+        dueDate,
+      } = c.req.valid("query");
 
       const member = await getMember({
         databases,
@@ -77,39 +87,12 @@ const app = new Hono()
         Query.orderDesc("$createdAt"),
       ];
 
-      if (projectId) {
-        console.log("projectId: ", projectId);
-        query.push(Query.equal("projectId", projectId));
-      }
-
-      if (status) {
-        console.log("status: ", status);
-        query.push(Query.equal("status", status));
-      }
-
-      if (assigneeId) {
-        console.log("assigneeId: ", assigneeId);
-        query.push(Query.equal("assigneeId", assigneeId));
-      }
-      if (startDate) {
-        console.log("startDate: ", startDate);
-        query.push(Query.equal("startDate", startDate));
-      }
-
-      if (startDate) {
-        console.log("startDate: ", startDate);
-        query.push(Query.equal("startDate", startDate));
-      }
-
-      if (dueDate) {
-        console.log("dueDate: ", dueDate);
-        query.push(Query.equal("dueDate", dueDate));
-      }
-
-      if (search) {
-        console.log("search: ", search);
-        query.push(Query.search("name", search));
-      }
+      if (projectId) query.push(Query.equal("projectId", projectId));
+      if (status) query.push(Query.equal("status", status));
+      if (assigneeId) query.push(Query.equal("assigneeId", assigneeId));
+      if (startDate) query.push(Query.equal("startDate", startDate));
+      if (dueDate) query.push(Query.equal("dueDate", dueDate));
+      if (search) query.push(Query.search("name", search));
 
       const tasks = await databases.listDocuments<Task>(
         DATABASE_ID,
@@ -117,8 +100,14 @@ const app = new Hono()
         query
       );
 
-      const projectIds = tasks.documents.map((task) => task.projectId);
-      const assigneeIds = tasks.documents.map((task) => task.assigneeId);
+      // --- FIX: filter out undefined IDs for safety ---
+      const projectIds = tasks.documents
+        .map((task) => task.projectId)
+        .filter((id): id is string => !!id);
+
+      const assigneeIds = tasks.documents
+        .map((task) => task.assigneeId)
+        .filter((id): id is string => !!id);
 
       const projects = await databases.listDocuments<Project>(
         DATABASE_ID,
@@ -145,13 +134,15 @@ const app = new Hono()
       );
 
       const populatedTasks = tasks.documents.map((task) => {
-        const project = projects.documents.find(
-          (project) => project.$id === task.projectId
-        );
+        const project = task.projectId
+          ? projects.documents.find(
+              (project) => project.$id === task.projectId
+            )
+          : null;
 
-        const assignee = assignees.find(
-          (assignee) => assignee.$id === task.assigneeId
-        );
+        const assignee = task.assigneeId
+          ? assignees.find((assignee) => assignee.$id === task.assigneeId)
+          : null;
 
         return {
           ...task,
@@ -163,6 +154,8 @@ const app = new Hono()
       return c.json({ data: { ...tasks, documents: populatedTasks } });
     }
   )
+
+  // CREATE new task
   .post(
     "/",
     sessionMiddleware,
@@ -170,11 +163,7 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-<<<<<<< HEAD
-      const { name, status, workspaceId, projectId,startDate, dueDate, assigneeId } =
-=======
       const { name, status, workspaceId, projectId, startDate, dueDate, assigneeId } =
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
         c.req.valid("json");
 
       const member = await getMember({
@@ -212,11 +201,7 @@ const app = new Hono()
           status,
           workspaceId,
           projectId,
-<<<<<<< HEAD
-          startDate,
-=======
-          startDate: startDate || new Date().toISOString(), // Add startDate with default
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
+          startDate: startDate || new Date().toISOString(),
           dueDate,
           assigneeId,
           position: newPosition,
@@ -226,6 +211,8 @@ const app = new Hono()
       return c.json({ data: task });
     }
   )
+
+  // PATCH (update) task
   .patch(
     "/:taskId",
     sessionMiddleware,
@@ -233,8 +220,15 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-      const { name, status, projectId,startDate, dueDate, assigneeId, description } =
-        c.req.valid("json");
+      const {
+        name,
+        status,
+        projectId,
+        startDate,
+        dueDate,
+        assigneeId,
+        description,
+      } = c.req.valid("json");
 
       const { taskId } = c.req.param();
 
@@ -272,6 +266,8 @@ const app = new Hono()
       return c.json({ data: task });
     }
   )
+
+  // GET single task by ID
   .get("/:taskId", sessionMiddleware, async (c) => {
     const currentUser = c.get("user");
     const databases = c.get("databases");
@@ -295,25 +291,35 @@ const app = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    const project = await databases.getDocument<Project>(
-      DATABASE_ID,
-      PROJECTS_ID,
+    // ---- FIX: Only getDocument if ID is defined ----
+    const project =
       task.projectId
-    );
+        ? await databases.getDocument<Project>(
+            DATABASE_ID,
+            PROJECTS_ID,
+            task.projectId
+          )
+        : null;
 
-    const member = await databases.getDocument(
-      DATABASE_ID,
-      MEMBERS_ID,
+    const member =
       task.assigneeId
-    );
+        ? await databases.getDocument(
+            DATABASE_ID,
+            MEMBERS_ID,
+            task.assigneeId
+          )
+        : null;
 
-    const user = await users.get(member.userId);
+    const user = member ? await users.get(member.userId) : null;
 
-    const assignee = {
-      ...member,
-      name: user.name || user.email,
-      email: user.email,
-    };
+    const assignee =
+      member && user
+        ? {
+            ...member,
+            name: user.name || user.email,
+            email: user.email,
+          }
+        : null;
 
     return c.json({
       data: {
@@ -323,6 +329,8 @@ const app = new Hono()
       },
     });
   })
+
+  // BULK UPDATE tasks
   .post(
     "/bulk-update",
     sessionMiddleware,

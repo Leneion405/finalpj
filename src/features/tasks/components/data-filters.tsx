@@ -43,35 +43,19 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
     label: member.name,
   }));
 
-<<<<<<< HEAD
-  const [{ status, assigneeId, projectId, dueDate,startDate }, setFilters] =
-=======
-  const [{ status, assigneeId, projectId,startDate, dueDate }, setFilters] =
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
-    useTaskFilters();
+  // Get filters and setter
+  const [{ status, assigneeId, projectId, startDate, dueDate }, setFilters] = useTaskFilters();
 
   const onStatusChange = (value: string) => {
-    if (value === "all") {
-      setFilters({ status: null });
-    } else {
-      setFilters({ status: value as TaskStatus });
-    }
+    setFilters({ status: value === "all" ? null : (value as TaskStatus) });
   };
 
   const onAssigneeChange = (value: string) => {
-    if (value === "all") {
-      setFilters({ assigneeId: null });
-    } else {
-      setFilters({ assigneeId: value as string });
-    }
+    setFilters({ assigneeId: value === "all" ? null : value });
   };
 
   const onProjectChange = (value: string) => {
-    if (value === "all") {
-      setFilters({ projectId: null });
-    } else {
-      setFilters({ projectId: value as string });
-    }
+    setFilters({ projectId: value === "all" ? null : value });
   };
 
   if (isLoading) return null;
@@ -80,9 +64,7 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
     <div className="flex flex-col lg:flex-row gap-2">
       <Select
         defaultValue={status ?? undefined}
-        onValueChange={(value) => {
-          onStatusChange(value);
-        }}
+        onValueChange={onStatusChange}
       >
         <SelectTrigger className="w-full lg:w-auto h-8">
           <div className="flex items-center pr-2">
@@ -102,9 +84,7 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
       </Select>
       <Select
         defaultValue={assigneeId ?? undefined}
-        onValueChange={(value) => {
-          onAssigneeChange(value);
-        }}
+        onValueChange={onAssigneeChange}
       >
         <SelectTrigger className="w-full lg:w-auto h-8">
           <div className="flex items-center pr-2">
@@ -125,9 +105,7 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
       {!hideProjectFilter && (
         <Select
           defaultValue={projectId ?? undefined}
-          onValueChange={(value) => {
-            onProjectChange(value);
-          }}
+          onValueChange={onProjectChange}
         >
           <SelectTrigger className="w-full lg:w-auto h-8">
             <div className="flex items-center pr-2">
@@ -146,42 +124,29 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
           </SelectContent>
         </Select>
       )}
+      {/* Start Date filter */}
       <div className="w-[180px]">
-      <DatePicker
-        value={startDate ? new Date(startDate) : undefined}
-        onChange={(date) => {
-          setFilters({
-            startDate: date ? date.toISOString() : null,
-          });
-        }}
-        placeholder="Filter by Start Date"
-      />
+        <DatePicker
+          value={startDate ? new Date(startDate) : undefined}
+          onChange={(date) => {
+            setFilters({
+              startDate: date ? date.toISOString() : null,
+            });
+          }}
+          placeholder="Filter by Start Date"
+        />
       </div>
-      
       {/* Due Date filter */}
       <div className="w-[180px]">
-      <DatePicker
-<<<<<<< HEAD
-=======
-        placeholder="start date"
-        className="h-8 w-full lg:w-auto"
-        value={startDate ? new Date(startDate) : undefined}
-        onChange={(date) => {
-          setFilters({ startDate: date ? date.toISOString() : null });
-        }}
-      />
-      <DatePicker
-        placeholder="Due date"
-        className="h-8 w-full lg:w-auto"
->>>>>>> 2401d71f8ed9729998889df94bf71f7ee6225f56
-        value={dueDate ? new Date(dueDate) : undefined}
-        onChange={(date) => {
-          setFilters({
-            dueDate: date ? date.toISOString() : null,
-          });
-        }}
-        placeholder="Filter by Due Date"
-      />
+        <DatePicker
+          value={dueDate ? new Date(dueDate) : undefined}
+          onChange={(date) => {
+            setFilters({
+              dueDate: date ? date.toISOString() : null,
+            });
+          }}
+          placeholder="Filter by Due Date"
+        />
       </div>
     </div>
   );
