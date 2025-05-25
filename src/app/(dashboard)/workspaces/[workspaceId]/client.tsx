@@ -96,7 +96,9 @@ export const TaskList = ({ data, total }: TaskListProps) => {
                       <div className="flex items-center text-sm text-muted-foreground">
                         <CalendarIcon className="size-3 mr-1" />
                         <span className="truncate">
-                          {formatDistanceToNow(new Date(task.dueDate))}
+                          {task.dueDate
+                            ? formatDistanceToNow(new Date(task.dueDate))
+                            : "No due date"}
                         </span>
                       </div>
                     </div>

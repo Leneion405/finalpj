@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { ArrowLeft, MoreVerticalIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -22,6 +22,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { RiAddCircleFill } from "react-icons/ri";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AllMembersCard } from "@/features/members/components/all-members-list";
 
 export const MembersList = () => {
   const workspaceId = useWorkspaceId();
@@ -30,12 +38,11 @@ export const MembersList = () => {
     "This member will be removed from the workspace.",
     "destructive"
   );
+  const [open, setOpen] = useState(false);
 
   const { data } = useGetMembers({ workspaceId });
-  const { mutate: deleteMember, isPending: isDeletingMember } =
-    useDeleteMember();
-  const { mutate: updateMember, isPending: isUpdatingMember } =
-    useUpdateMember();
+  const { mutate: deleteMember, isPending: isDeletingMember } = useDeleteMember();
+  const { mutate: updateMember, isPending: isUpdatingMember } = useUpdateMember();
 
   const handleUpdateMember = (memberId: string, role: MemberRole) => {
     updateMember({ json: { role }, param: { memberId } });
@@ -43,30 +50,30 @@ export const MembersList = () => {
 
   const handleDeleteMember = async (memberId: string) => {
     const ok = await confirm();
-
     if (!ok) return;
-
     deleteMember(
       { param: { memberId } },
-      {
-        onSuccess: () => {
-          window.location.reload();
-        },
-      }
+      { onSuccess: () => window.location.reload() }
     );
   };
 
   return (
     <Card className="size-full border-none shadow-none">
       <ConfirmDialog />
-      <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
-        <Button asChild variant="secondary" size="sm">
-          <Link href={`/workspaces/${workspaceId}`}>
-            <ArrowLeft className="size-4 mr-2" />
-            Back
-          </Link>
-        </Button>
-        <CardTitle className="text-xl font-bold">Members List</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between p-7 space-y-0">
+        <div className="flex items-center gap-x-4">
+          <Button asChild variant="secondary" size="sm">
+            <Link href={`/workspaces/${workspaceId}`}>
+              <ArrowLeft className="size-4 mr-2" />
+              Back
+            </Link>
+          </Button>
+          <CardTitle className="text-xl font-bold">Members List</CardTitle>
+        </div>
+        <RiAddCircleFill
+          onClick={() => setOpen(true)}
+          className="size-5 text-neutral-500 cursor-pointer hover:opacity-75 transition"
+        />
       </CardHeader>
       <div className="px-7">
         <DottedSeparator />
@@ -111,9 +118,7 @@ export const MembersList = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="font-medium text-amber-700"
-                    onClick={() =>
-                      handleDeleteMember(member.$id)
-                    }
+                    onClick={() => handleDeleteMember(member.$id)}
                     disabled={isDeletingMember}
                   >
                     Remove {member.name}
@@ -127,6 +132,16 @@ export const MembersList = () => {
           </Fragment>
         ))}
       </CardContent>
+
+      {/* Dialog for AllMembersCard */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>All Members</DialogTitle>
+          </DialogHeader>
+          <AllMembersCard />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

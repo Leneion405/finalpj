@@ -11,6 +11,7 @@ import { getMember } from "../utils";
 import { Member, MemberRole } from "../types";
 
 const app = new Hono()
+  // Get members for a specific workspace
   .get(
     "/",
     sessionMiddleware,
@@ -50,6 +51,35 @@ const app = new Hono()
       return c.json({ data: { ...members, documents: populatedMembers } });
     }
   )
+
+  // 🔵 NEW: Get all members, no workspace filter
+  .get(
+    "/all",
+    sessionMiddleware,
+    async (c) => {
+      const { users } = await createAdminClient();
+      const databases = c.get("databases");
+
+      // Fetch all members in the database
+      const members = await databases.listDocuments<Member>(DATABASE_ID, MEMBERS_ID);
+
+      // Attach user info to each member
+      const populatedMembers = await Promise.all(
+        members.documents.map(async (member) => {
+          const user = await users.get(member.userId);
+          return {
+            ...member,
+            name: user.name || user.email,
+            email: user.email,
+          };
+        })
+      );
+
+      return c.json({ data: { ...members, documents: populatedMembers } });
+    }
+  )
+
+  // Delete member
   .delete("/:memberId", sessionMiddleware, async (c) => {
     const { memberId } = c.req.param();
     const user = c.get("user");
@@ -89,6 +119,8 @@ const app = new Hono()
 
     return c.json({ data: { $id: memberToDelete.$id } });
   })
+
+  // Patch (update) member
   .patch(
     "/:memberId",
     sessionMiddleware,
