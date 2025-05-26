@@ -188,26 +188,33 @@ export const MemberList = ({ data, total }: MemberListProps) => {
         </div>
         <DottedSeparator className="my-4" />
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.map((member) => (
-            <li key={member.$id}>
-              <Card className="shadow-none rounded-lg overflow-hidden">
-                <CardContent className="p-3 flex flex-col items-center gap-x-2">
-                  <MemberAvatar name={member.name} className="size-12" />
-                  <div className="flex flex-col items-center overflow-hidden">
-                    <p className="text-lg font-medium line-clamp-1">
-                      {member.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground line-clamp-1">
-                      {member.email}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+          {data.length === 0 ? (
+            <li className="text-sm text-muted-foreground text-center col-span-full">
+              No members found
             </li>
-          ))}
-          <li className="text-sm text-muted-foreground text-center hidden first-of-type:block">
-            No members found
-          </li>
+          ) : (
+            data.map((member) => (
+              <li key={member.$id}>
+                <Card className="shadow-none rounded-lg overflow-hidden">
+                  <CardContent className="p-3 flex flex-col items-center gap-y-2">
+                    <MemberAvatar
+                      name={member.name}
+                      className="size-16"
+                      fallbackClassName="text-xl"
+                    />
+                    <div className="flex flex-col items-center overflow-hidden w-[140px]">
+                      <p className="text-lg font-medium truncate w-full text-center">
+                        {member.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground truncate w-full text-center">
+                        {member.email}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </li>
+            ))
+          )}
         </ul>
       </div>
     </div>

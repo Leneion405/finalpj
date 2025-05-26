@@ -9,12 +9,15 @@ import { Projects } from "./projects";
 export const Sidebar = () => {
   return (
     <aside className="h-full bg-neutral-100 p-4 w-full">
-      <div className="flex items-center gap-2">
+     <div className="flex items-center gap-2">
         <Link href="/">
           <Image src="/logo.svg" alt="logo" width={50} height={39} />
         </Link>
-        <p className="font-bold text-lg">Tidy</p>
+        <Link href="/">
+          <p className="font-bold text-lg">Tidy</p>
+        </Link>
       </div>
+
       <DottedSeparator className="my-4" />
       <WorkspaceSwitcher />
       <DottedSeparator className="my-4" />

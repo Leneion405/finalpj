@@ -16,8 +16,11 @@ const StandaloneLayout = ({ children }: StandaloneLayoutProps) => {
             <Link href="/">
               <Image src="/logo.svg" alt="logo" width={50} height={39} />
             </Link>
-            <p className="font-bold text-lg">Tidy</p>
+            <Link href="/">
+              <p className="font-bold text-lg">Tidy</p>
+            </Link>
           </div>
+
           <UserButton />
         </nav>
         <div className="flex flex-col items-center justify-center py-4">
