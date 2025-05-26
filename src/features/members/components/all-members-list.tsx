@@ -1,3 +1,4 @@
+// src/features/members/components/all-members-list.tsx
 "use client";
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
@@ -6,48 +7,27 @@ import { useGetAllMembers } from "@/features/members/api/use-get-all-members";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { useGetWorkspaceInfo } from "@/features/workspaces/api/use-get-workspace-info";
-import { RiAddCircleFill } from "react-icons/ri";
-import { toast } from "sonner";
+import { InviteButton } from "@/features/invitations/components/invite-button";
+import { useGetInvites } from "@/features/invitations/api/useGetInvites"; // make sure this exists
 
 export const AllMembersCard = () => {
-  // Fetch all members
   const { data: allMembersData, isLoading, isError } = useGetAllMembers();
-
-  // Get current workspace ID and info
   const workspaceId = useWorkspaceId();
   const { data: wsInfo } = useGetWorkspaceInfo({ workspaceId });
-
-  // Fetch members in the current workspace
   const { data: workspaceMembersData } = useGetMembers({ workspaceId });
+  const { data: invitesData } = useGetInvites();
 
-  // Get IDs of members in the current workspace
-  const workspaceMemberIds = workspaceMembersData?.documents.map((m: any) => m.$id) || [];
+  const workspaceMemberIds =
+    workspaceMembersData?.documents.map((m: any) => m.userId) || [];
+  const invitedMemberIds =
+    invitesData?.map((invite: any) => invite.recipientId) || [];
 
-  // Filter out members who are already in the workspace
-  const filteredMembers = allMembersData?.documents.filter(
-    (member: any) => !workspaceMemberIds.includes(member.$id)
-  ) || [];
-
-  // Invite handler
-  const sendInvite = async (memberId: string) => {
-    try {
-      const res = await fetch("/api/notifications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          recipientId: memberId,
-          workspaceId,
-          workspaceName: wsInfo?.name ?? "",
-        }),
-      });
-      const payload = await res.json();
-      if (!res.ok) throw new Error();
-      toast.success("Invite sent!");
-    } catch (err) {
-      toast.error("Failed to send invite");
-    }
-  };
+  const filteredMembers =
+    allMembersData?.documents.filter(
+      (member: any) =>
+        !workspaceMemberIds.includes(member.$id) &&
+        !invitedMemberIds.includes(member.$id)
+    ) || [];
 
   return (
     <Card>
@@ -66,17 +46,21 @@ export const AllMembersCard = () => {
               <MemberAvatar name={member.name} />
               <div className="flex-1 min-w-0">
                 <div className="truncate">{member.name}</div>
-                <div className="text-xs text-muted-foreground truncate">{member.email}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {member.email}
+                </div>
               </div>
-              <RiAddCircleFill
-                onClick={() => sendInvite(member.$id)}
-                className="size-5 text-neutral-500 cursor-pointer hover:opacity-75 transition"
-                title="Invite"
+              <InviteButton
+                recipientId={member.$id}
+                workspaceId={workspaceId}
+                workspaceName={wsInfo?.name}
               />
             </div>
           ))}
           {!filteredMembers.length && !isLoading && (
-            <div className="text-sm text-muted-foreground">No members found.</div>
+            <div className="text-sm text-muted-foreground">
+              No available members to invite.
+            </div>
           )}
         </div>
       </CardContent>

@@ -1,24 +1,27 @@
-// features/members/api/use-get-all-members.ts
+import { useEffect, useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+export function useGetAllMembers() {
+  const [data, setData] = useState<{ documents: any[] } | null>(null);
+  const [error, setError] = useState(false);
 
-import { client } from "@/lib/rpc";
-
-export const useGetAllMembers = () => {
-  const query = useQuery({
-    queryKey: ["all-members"],
-    queryFn: async () => {
-      const response = await client.api.members.all.$get();
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch all members.");
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await fetch("/api/users");
+        const json = await res.json();
+        setData({ documents: json.users }); // Match structure
+      } catch (err) {
+        console.error("Error fetching users", err);
+        setError(true);
       }
+    };
 
-      const { data } = await response.json();
+    fetchAll();
+  }, []);
 
-      return data;
-    },
-  });
-
-  return query;
-};
+  return {
+    data,
+    isLoading: !data && !error,
+    isError: error,
+  };
+}

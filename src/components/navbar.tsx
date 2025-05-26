@@ -5,6 +5,7 @@ import { UserButton } from "@/features/auth/components/user-button";
 import { usePathname } from "next/navigation";
 
 import { MobileSidebar } from "./mobile-sidebar";
+import { NotificationBell } from "@/features/invitations/components/notificationBell";
 
 const pathnameMap = {
   tasks: {
@@ -36,7 +37,10 @@ export const Navbar = () => {
         <p className="text-muted-foreground">{description}</p>
       </div>
       <MobileSidebar />
+      <div className="flex items-center gap-x-4">
+      <NotificationBell />
       <UserButton />
+      </div>
     </nav>
   );
 };
