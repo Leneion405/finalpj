@@ -25,24 +25,28 @@ export const Projects = () => {
           className="size-5 text-neutral-500 cursor-pointer hover:opacity-75 transition"
         />
       </div>
-      {data?.documents.map((project) => {
-        const href = `/workspaces/${workspaceId}/projects/${project.$id}`;
-        const isActive = pathname === href;
 
-        return (
-          <Link key={project.$id} href={href}>
-            <div
-              className={cn(
-                "flex items-center gap-2.5 p-2.5 rounded-md hover:opacity-75 transition cursor-pointer text-neutral-500",
-                isActive && "bg-white shadow-sm hover:opacity-100 text-primary"
-              )}
-            >
-              <ProjectAvatar image={project.imageUrl} name={project.name} />
-              <span className="truncate">{project.name}</span>
-            </div>
-          </Link>
-        );
-      })}
+      {/* Scrollable container */}
+      <div className="max-h-64 overflow-y-auto pr-1 mt-1 space-y-1">
+        {data?.documents.map((project) => {
+          const href = `/workspaces/${workspaceId}/projects/${project.$id}`;
+          const isActive = pathname === href;
+
+          return (
+            <Link key={project.$id} href={href}>
+              <div
+                className={cn(
+                  "flex items-center gap-2.5 p-2.5 rounded-md hover:opacity-75 transition cursor-pointer text-neutral-500",
+                  isActive && "bg-white shadow-sm hover:opacity-100 text-primary"
+                )}
+              >
+                <ProjectAvatar image={project.imageUrl} name={project.name} />
+                <span className="truncate">{project.name}</span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 };

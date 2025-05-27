@@ -11,7 +11,7 @@ export enum TaskStatus {
 
 export interface Task extends Models.Document {
   // Required
-  title: string;
+  name: string;
   status: TaskStatus;
   projectId: string;
   workspaceId: string;

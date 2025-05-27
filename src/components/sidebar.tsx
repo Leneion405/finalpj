@@ -14,7 +14,7 @@ export const Sidebar = () => {
           <Image src="/logo.svg" alt="logo" width={50} height={39} />
         </Link>
         <Link href="/">
-          <p className="font-bold text-lg">Tidy</p>
+          <p className="font-bold text-lg">Team Sync.</p>
         </Link>
       </div>
 
