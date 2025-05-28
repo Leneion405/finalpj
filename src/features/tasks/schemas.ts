@@ -1,6 +1,5 @@
-// src/features/tasks/schemas.ts
 import { z } from "zod";
-import { TaskStatus } from "./types";
+import { TaskStatus, TaskPriority } from "./types";
 
 export const createTaskSchema = z.object({
   name: z.string().trim().min(1, "Required"),
@@ -11,4 +10,6 @@ export const createTaskSchema = z.object({
   dueDate: z.coerce.date().optional(), // dueDate should usually be optional
   assigneeId: z.string().trim().min(1, "Required").optional(), // often optional, adjust if not
   description: z.string().optional(),
+  dependencyIds: z.array(z.string()).optional(), 
+  priority: z.nativeEnum(TaskPriority).optional().default(TaskPriority.LOW),
 });

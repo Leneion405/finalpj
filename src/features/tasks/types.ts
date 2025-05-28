@@ -8,6 +8,11 @@ export enum TaskStatus {
   IN_REVIEW = "IN_REVIEW",
   DONE = "DONE",
 }
+export enum TaskPriority {
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+}
 
 export interface Task extends Models.Document {
   // Required
@@ -20,6 +25,8 @@ export interface Task extends Models.Document {
   assigneeId?: string;
   startDate?: string; // ISO date string format
   dueDate?: string;   // ISO date string format
+  dependencyIds?: string[];
+  priority?: TaskPriority;
 }
 
 export interface TaskWithProject extends Task {

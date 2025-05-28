@@ -1,13 +1,15 @@
 // src/features/tasks/hooks/use-task-filters.ts
 
 import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
-import { TaskStatus } from "../types";
+
+import { TaskStatus, TaskPriority } from "../types";
 
 export const useTaskFilters = () => {
   return useQueryStates({
     projectId: parseAsString,
     status: parseAsStringEnum(Object.values(TaskStatus)),
     assigneeId: parseAsString,
+    priority: parseAsStringEnum(Object.values(TaskPriority)), // Added priority filter
     search: parseAsString,
     startDate: parseAsString,
     dueDate: parseAsString,
