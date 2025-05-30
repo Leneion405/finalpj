@@ -56,6 +56,7 @@ const app = new Hono()
       search: z.string().nullish(),
       startDate: z.string().nullish(),
       dueDate: z.string().nullish(),
+      priority: z.nativeEnum(TaskPriority).nullish(), // <-- ADDED
     })
   ),
   async (c) => {
@@ -71,6 +72,7 @@ const app = new Hono()
       search,
       startDate,
       dueDate,
+      priority, // <-- ADDED
     } = c.req.valid("query");
 
     const member = await getMember({
@@ -91,8 +93,14 @@ const app = new Hono()
     if (projectId) query.push(Query.equal("projectId", projectId));
     if (status) query.push(Query.equal("status", status));
     if (assigneeId) query.push(Query.equal("assigneeId", assigneeId));
-    if (startDate) query.push(Query.equal("startDate", startDate));
-    if (dueDate) query.push(Query.equal("dueDate", dueDate));
+    if (startDate && dueDate) {
+      query.push(Query.between("dueDate", startDate, dueDate));
+    } else if (startDate) {
+      query.push(Query.greaterThanEqual("startDate", startDate));
+    } else if (dueDate) {
+      query.push(Query.lessThanEqual("dueDate", dueDate));
+    }
+    if (priority) query.push(Query.equal("priority", priority)); // <-- ADDED
     if (search) query.push(Query.search("name", search));
 
     const tasks = await databases.listDocuments<Task>(

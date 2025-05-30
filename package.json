@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dhtmlx/trial-react-gantt": "^1.1.4",
     "@hello-pangea/dnd": "17.0.0",
     "@hono/zod-validator": "^0.4.1",
     "@hookform/resolvers": "^3.9.1",
@@ -30,7 +31,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "gantt-task-react": "^0.3.9",
     "hono": "^4.6.9",
     "lucide-react": "^0.454.0",
     "next": "14.2.14",

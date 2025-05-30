@@ -57,14 +57,15 @@ export const CreateTaskForm = ({
   })) || [];
 
   const form = useForm<z.infer<typeof createTaskSchema>>({
-    resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
-    defaultValues: {
-      workspaceId,
-      startDate: new Date(),
-      priority: TaskPriority.LOW,
-      dependencyIds: [],
-    },
-  });
+  resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
+  defaultValues: {
+    workspaceId,
+    startDate: new Date().toISOString(), // Convert to ISO string
+    priority: TaskPriority.LOW,
+    dependencyIds: [],
+  },
+});
+
 
   const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
     mutate(
@@ -139,34 +140,44 @@ export const CreateTaskForm = ({
               />
 
               {/* Dates */}
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <DatePicker {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dueDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Date</FormLabel>
-                      <FormControl>
-                        <DatePicker {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {/* Start Date */}
+                    <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              {...field}
+                              value={field.value ? new Date(field.value) : undefined}
+                              onChange={(date) => field.onChange(date?.toISOString())}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Due Date */}
+                    <FormField
+                      control={form.control}
+                      name="dueDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Due Date</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              {...field}
+                              value={field.value ? new Date(field.value) : undefined}
+                              onChange={(date) => field.onChange(date?.toISOString())}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
 
               {/* Assignee and Priority */}
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

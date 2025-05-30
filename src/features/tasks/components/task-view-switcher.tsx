@@ -3,6 +3,7 @@
 import { LoaderIcon, PlusIcon } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { useCallback } from "react";
+import dynamic from "next/dynamic";
 
 import { useProjectId } from "@/features/projects/hooks/use-project-id";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
@@ -16,13 +17,23 @@ import { DataCalendar } from "./data-calendar";
 import { DataFilters } from "./data-filters";
 import { DataKanban } from "./data-kanban";
 import { DataTable } from "./data-table";
-import { TaskGantt } from "./data-gantt";
 
 import { useGetTasks } from "../api/use-get-tasks";
 import { useCreateTaskModal } from "../hooks/use-create-task-modal";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import { TaskStatus } from "../types";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
+
+// Dynamic import for Gantt to avoid SSR issues
+const TaskGantt = dynamic(() => import("./data-gantt").then(mod => ({ default: mod.TaskGantt })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <LoaderIcon className="size-6 animate-spin text-muted-foreground" />
+      <span className="ml-2">Loading Gantt Chart...</span>
+    </div>
+  )
+});
 
 interface TaskViewSwitcherProps {
   hideProjectFilter?: boolean;
@@ -31,7 +42,7 @@ interface TaskViewSwitcherProps {
 export const TaskViewSwitcher = ({
   hideProjectFilter,
 }: TaskViewSwitcherProps) => {
-  const [{ status, assigneeId, projectId, startDate, dueDate }] = useTaskFilters();
+  const [{ status, assigneeId, projectId, priority, startDate, dueDate }] = useTaskFilters();
   const [view, setView] = useQueryState("task-view", { defaultValue: "table" });
   const { mutate: bulkUpdate } = useBulkUpdateTasks();
 
@@ -42,6 +53,7 @@ export const TaskViewSwitcher = ({
     projectId: paramProjectId || projectId,
     assigneeId,
     status,
+    priority,
     startDate,
     dueDate,
   });
@@ -107,8 +119,9 @@ export const TaskViewSwitcher = ({
               <TabsContent value="calendar" className="mt-0 h-full p-4">
                 <DataCalendar data={tasks?.documents ?? []} />
               </TabsContent>
-              <TabsContent value="gantt" className="mt-0 h-full overflow-hidden">
-                <div className="h-full w-full overflow-auto">
+              {/* Updated Gantt tab with better sizing */}
+              <TabsContent value="gantt" className="mt-0 h-full p-2">
+                <div className="w-full h-full border rounded-lg bg-white overflow-hidden" style={{ height: "calc(100vh - 250px)" }}>
                   <TaskGantt data={tasks?.documents ?? []} />
                 </div>
               </TabsContent>

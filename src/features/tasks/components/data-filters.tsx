@@ -2,7 +2,6 @@ import { FolderIcon, ListChecksIcon, UserIcon, AlertTriangleIcon } from "lucide-
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetProjects } from "@/features/projects/api/use-get-projects";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
-
 import { DatePicker } from "@/components/date-picker";
 import {
   Select,
@@ -12,17 +11,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { useTaskFilters } from "../hooks/use-task-filters";
 import { TaskStatus, TaskPriority } from "../types";
 
 interface DataFiltersProps {
   hideProjectFilter?: boolean;
+  hideAssigneeFilter?: boolean; // Add this prop
 }
 
-export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
+export const DataFilters = ({ 
+  hideProjectFilter, 
+  hideAssigneeFilter 
+}: DataFiltersProps) => {
   const workspaceId = useWorkspaceId();
-
   const { data: projects, isLoading: isLoadingProjects } = useGetProjects({
     workspaceId,
   });
@@ -65,12 +66,8 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
 
   return (
     <div className="flex flex-col lg:flex-row gap-2">
-      {/* Status Filter */}
-      <Select
-        defaultValue={status ?? undefined}
-        onValueChange={(value) => onStatusChange(value)}
-      >
-        <SelectTrigger className="w-full lg:w-auto h-10">
+      <Select defaultValue={status ?? undefined} onValueChange={onStatusChange}>
+        <SelectTrigger className="w-full lg:w-auto h-8">
           <div className="flex items-center pr-2">
             <ListChecksIcon className="size-4 mr-2" />
             <SelectValue placeholder="All statuses" />
@@ -87,70 +84,30 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
         </SelectContent>
       </Select>
 
-      {/* Priority Filter */}
-      <Select
-        defaultValue={priority ?? undefined}
-        onValueChange={(value) => onPriorityChange(value)}
-      >
-        <SelectTrigger className="w-full lg:w-auto h-10">
-          <div className="flex items-center pr-2">
-            <AlertTriangleIcon className="size-4 mr-2" />
-            <SelectValue placeholder="All priorities" />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All priorities</SelectItem>
-          <SelectSeparator />
-          <SelectItem value={TaskPriority.HIGH}>
-            <div className="flex items-center gap-x-2">
-              <div className="size-2 rounded-full bg-red-500" />
-              High
+      {/* Conditionally render assignee filter */}
+      {!hideAssigneeFilter && (
+        <Select defaultValue={assigneeId ?? undefined} onValueChange={onAssigneeChange}>
+          <SelectTrigger className="w-full lg:w-auto h-8">
+            <div className="flex items-center pr-2">
+              <UserIcon className="size-4 mr-2" />
+              <SelectValue placeholder="All assignees" />
             </div>
-          </SelectItem>
-          <SelectItem value={TaskPriority.MEDIUM}>
-            <div className="flex items-center gap-x-2">
-              <div className="size-2 rounded-full bg-yellow-500" />
-              Medium
-            </div>
-          </SelectItem>
-          <SelectItem value={TaskPriority.LOW}>
-            <div className="flex items-center gap-x-2">
-              <div className="size-2 rounded-full bg-gray-500" />
-              Low
-            </div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All assignees</SelectItem>
+            <SelectSeparator />
+            {memberOptions?.map((member) => (
+              <SelectItem key={member.value} value={member.value}>
+                {member.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
-      {/* Assignee Filter */}
-      <Select
-        defaultValue={assigneeId ?? undefined}
-        onValueChange={(value) => onAssigneeChange(value)}
-      >
-        <SelectTrigger className="w-full lg:w-auto h-10">
-          <div className="flex items-center pr-2">
-            <UserIcon className="size-4 mr-2" />
-            <SelectValue placeholder="All assignees" />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All assignees</SelectItem>
-          <SelectSeparator />
-          {memberOptions?.map((member) => (
-            <SelectItem key={member.value} value={member.value}>
-              {member.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {/* Project Filter */}
       {!hideProjectFilter && (
-        <Select
-          defaultValue={projectId ?? undefined}
-          onValueChange={(value) => onProjectChange(value)}
-        >
-          <SelectTrigger className="w-full lg:w-auto h-10">
+        <Select defaultValue={projectId ?? undefined} onValueChange={onProjectChange}>
+          <SelectTrigger className="w-full lg:w-auto h-8">
             <div className="flex items-center pr-2">
               <FolderIcon className="size-4 mr-2" />
               <SelectValue placeholder="All projects" />
@@ -168,27 +125,28 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
         </Select>
       )}
 
-      {/* Start Date Filter */}
-      <DatePicker
-        placeholder="Start date"
-        className="w-full lg:w-auto h-10"
-        value={startDate ? new Date(startDate) : undefined}
-        onChange={(date) => {
-          setFilters({
-            startDate: date ? date.toISOString() : null,
-          });
-        }}
-      />
+      <Select defaultValue={priority ?? undefined} onValueChange={onPriorityChange}>
+        <SelectTrigger className="w-full lg:w-auto h-8">
+          <div className="flex items-center pr-2">
+            <AlertTriangleIcon className="size-4 mr-2" />
+            <SelectValue placeholder="All priorities" />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All priorities</SelectItem>
+          <SelectSeparator />
+          <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
+          <SelectItem value={TaskPriority.MEDIUM}>Medium</SelectItem>
+          <SelectItem value={TaskPriority.HIGH}>High</SelectItem>
+        </SelectContent>
+      </Select>
 
-      {/* Due Date Filter */}
       <DatePicker
         placeholder="Due date"
-        className="w-full lg:w-auto h-10"
+        className="h-8 w-full lg:w-auto"
         value={dueDate ? new Date(dueDate) : undefined}
         onChange={(date) => {
-          setFilters({
-            dueDate: date ? date.toISOString() : null,
-          });
+          setFilters({ dueDate: date ? date.toISOString() : null });
         }}
       />
     </div>

@@ -6,10 +6,11 @@ export const createTaskSchema = z.object({
   status: z.nativeEnum(TaskStatus, { required_error: "Required" }),
   workspaceId: z.string().trim().min(1, "Required"),
   projectId: z.string().trim().min(1, "Required"),
-  startDate: z.coerce.date().default(() => new Date()), // only ONE startDate
-  dueDate: z.coerce.date().optional(), // dueDate should usually be optional
-  assigneeId: z.string().trim().min(1, "Required").optional(), // often optional, adjust if not
+  startDate: z.string().optional(), // Change to string
+  dueDate: z.string().optional(),   // Change to string
+  assigneeId: z.string().trim().min(1, "Required").optional(),
   description: z.string().optional(),
-  dependencyIds: z.array(z.string()).optional(), 
+  dependencyIds: z.array(z.string()).optional(),
   priority: z.nativeEnum(TaskPriority).optional().default(TaskPriority.LOW),
 });
+

@@ -60,16 +60,17 @@ export const EditTaskForm = ({
       name: task.name,
     })) || [];
 
-  const form = useForm<z.infer<typeof createTaskSchema>>({
-    resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
-    defaultValues: {
-      ...initialValues,
-      startDate: initialValues.startDate ? new Date(initialValues.startDate) : new Date(),
-      dueDate: initialValues.dueDate ? new Date(initialValues.dueDate) : undefined,
-      priority: initialValues.priority || TaskPriority.LOW,
-      dependencyIds: initialValues.dependencyIds || [],
-    },
-  });
+ const form = useForm<z.infer<typeof createTaskSchema>>({
+  resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
+  defaultValues: {
+    ...initialValues,
+    startDate: initialValues.startDate || new Date().toISOString(), // Keep as string
+    dueDate: initialValues.dueDate || undefined, // Keep as string if exists
+    priority: initialValues.priority || TaskPriority.LOW,
+    dependencyIds: initialValues.dependencyIds || [],
+  },
+});
+
 
   const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
     mutate(
@@ -147,7 +148,7 @@ export const EditTaskForm = ({
               />
 
               {/* Dates */}
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+         {/* Start Date */}
                 <FormField
                   control={form.control}
                   name="startDate"
@@ -155,12 +156,18 @@ export const EditTaskForm = ({
                     <FormItem>
                       <FormLabel>Start Date</FormLabel>
                       <FormControl>
-                        <DatePicker {...field} />
+                        <DatePicker
+                          {...field}
+                          value={field.value ? new Date(field.value) : undefined}
+                          onChange={(date) => field.onChange(date?.toISOString())}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Due Date */}
                 <FormField
                   control={form.control}
                   name="dueDate"
@@ -168,13 +175,17 @@ export const EditTaskForm = ({
                     <FormItem>
                       <FormLabel>Due Date</FormLabel>
                       <FormControl>
-                        <DatePicker {...field} />
+                        <DatePicker
+                          {...field}
+                          value={field.value ? new Date(field.value) : undefined}
+                          onChange={(date) => field.onChange(date?.toISOString())}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
+
 
               {/* Assignee and Priority */}
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

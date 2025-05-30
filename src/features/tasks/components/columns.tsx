@@ -45,6 +45,9 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const project = row.original.project;
+      if (!project) {
+        return <span className="text-xs text-muted-foreground">No project</span>;
+      }
       return (
         <div className="flex items-center gap-x-2 text-sm font-medium">
           <ProjectAvatar
@@ -70,6 +73,9 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const assignee = row.original.assignee;
+      if (!assignee) {
+        return <span className="text-xs text-muted-foreground">Unassigned</span>;
+      }
       return (
         <div className="flex items-center gap-x-2 text-sm font-medium">
           <MemberAvatar
@@ -122,58 +128,56 @@ export const columns: ColumnDef<Task>[] = [
   },
   // Priority Column
   {
-    accessorKey: "priority",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Priority
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const priority = row.original.priority;
-      
-      const getPriorityBadge = (priority?: TaskPriority) => {
-        switch (priority) {
-          case TaskPriority.HIGH:
-            return (
-              <Badge className="bg-red-500 text-white hover:bg-red-600 text-xs">
-                HIGH
-              </Badge>
-            );
-          case TaskPriority.MEDIUM:
-            return (
-              <Badge className="bg-yellow-500 text-white hover:bg-yellow-600 text-xs">
-                MEDIUM
-              </Badge>
-            );
-          case TaskPriority.LOW:
-          default:
-            return (
-              <Badge className="bg-gray-500 text-white hover:bg-gray-600 text-xs">
-                LOW
-              </Badge>
-            );
-        }
-      };
-
-      return getPriorityBadge(priority);
-    },
-    sortingFn: (rowA, rowB, columnId) => {
-      const priorityOrder = {
-        [TaskPriority.HIGH]: 3,
-        [TaskPriority.MEDIUM]: 2,
-        [TaskPriority.LOW]: 1,
-      };
-      
-      const aPriority = priorityOrder[rowA.original.priority || TaskPriority.LOW];
-      const bPriority = priorityOrder[rowB.original.priority || TaskPriority.LOW];
-      
-      return aPriority - bPriority;
-    },
+  accessorKey: "priority",
+  header: ({ column }) => (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      Priority
+      <ArrowUpDown className="ml-2 h-4 w-4" />
+    </Button>
+  ),
+  cell: ({ row }) => {
+    const priority = row.original.priority as TaskPriority | undefined;
+    switch (priority) {
+      case TaskPriority.HIGH:
+        return (
+          <Badge className="bg-red-500 text-white hover:bg-red-600 text-xs">
+            HIGH
+          </Badge>
+        );
+      case TaskPriority.MEDIUM:
+        return (
+          <Badge className="bg-yellow-500 text-white hover:bg-yellow-600 text-xs">
+            MEDIUM
+          </Badge>
+        );
+      case TaskPriority.LOW:
+        return (
+          <Badge className="bg-gray-500 text-white hover:bg-gray-600 text-xs">
+            LOW
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-gray-300 text-gray-700 text-xs">
+            None
+          </Badge>
+        );
+    }
   },
+  sortingFn: (rowA, rowB, columnId) => {
+    const priorityOrder = {
+      [TaskPriority.HIGH]: 3,
+      [TaskPriority.MEDIUM]: 2,
+      [TaskPriority.LOW]: 1,
+    };
+    const aPriority = priorityOrder[rowA.original.priority || TaskPriority.LOW];
+    const bPriority = priorityOrder[rowB.original.priority || TaskPriority.LOW];
+    return aPriority - bPriority;
+  },
+},
   // Dependencies Column
   {
     accessorKey: "dependencyIds",
@@ -188,14 +192,12 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const dependencyIds = row.original.dependencyIds;
-      
       if (!dependencyIds || dependencyIds.length === 0) {
         return <span className="text-xs text-muted-foreground">No dependencies</span>;
       }
-
       return (
         <div className="flex flex-wrap gap-1">
-          {dependencyIds.slice(0, 2).map((depId) => (
+          {dependencyIds.slice(0, 2).map((depId: string) => (
             <Badge key={depId} variant="outline" className="text-xs">
               Task-{depId.slice(-3)}
             </Badge>

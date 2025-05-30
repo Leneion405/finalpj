@@ -43,22 +43,25 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
-    const finalValues = {
-      ...values,
-      image: values.image instanceof File ? values.image : "",
-    };
-
-    mutate(
-      { form: finalValues },
-      {
-        onSuccess: ({ data }) => {
-          form.reset();
-          router.push(`/workspaces/${data.$id}`);
-        },
-      }
-    );
+  // In your form component, you can access createdBy after creation
+const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
+  const finalValues = {
+    ...values,
+    image: values.image instanceof File ? values.image : "",
   };
+
+  mutate(
+    { form: finalValues },
+    {
+      onSuccess: ({ data }) => {
+        form.reset();
+        console.log("Workspace created by:", data.createdBy); // You can use this
+        router.push(`/workspaces/${data.$id}`);
+      },
+    }
+  );
+};
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

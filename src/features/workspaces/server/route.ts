@@ -87,56 +87,58 @@ const app = new Hono()
     });
   })
   .post(
-    "/",
-    zValidator("form", createWorkspaceSchema),
-    sessionMiddleware,
-    async (c) => {
-      const databases = c.get("databases");
-      const storage = c.get("storage");
-      const user = c.get("user");
+  "/",
+  zValidator("form", createWorkspaceSchema),
+  sessionMiddleware,
+  async (c) => {
+    const databases = c.get("databases");
+    const storage = c.get("storage");
+    const user = c.get("user");
 
-      const { name, image } = c.req.valid("form");
+    const { name, image } = c.req.valid("form");
 
-      let uploadedImageUrl: string | undefined;
+    let uploadedImageUrl: string | undefined;
 
-      if (image instanceof File) {
-        const file = await storage.createFile(
-          IMAGES_BUCKET_ID,
-          ID.unique(),
-          image
-        );
-
-        const arrayBuffer = await storage.getFilePreview(
-          IMAGES_BUCKET_ID,
-          file.$id
-        );
-
-        uploadedImageUrl = `data:image/png;base64,${Buffer.from(
-          arrayBuffer
-        ).toString("base64")}`;
-      }
-
-      const workspace = await databases.createDocument(
-        DATABASE_ID,
-        WORKSPACES_ID,
+    if (image instanceof File) {
+      const file = await storage.createFile(
+        IMAGES_BUCKET_ID,
         ID.unique(),
-        {
-          name,
-          userId: user.$id,
-          imageUrl: uploadedImageUrl,
-          inviteCode: generateInviteCode(6),
-        }
+        image
       );
 
-      await databases.createDocument(DATABASE_ID, MEMBERS_ID, ID.unique(), {
-        userId: user.$id,
-        workspaceId: workspace.$id,
-        role: MemberRole.ADMIN,
-      });
+      const arrayBuffer = await storage.getFilePreview(
+        IMAGES_BUCKET_ID,
+        file.$id
+      );
 
-      return c.json({ data: workspace });
+      uploadedImageUrl = `data:image/png;base64,${Buffer.from(
+        arrayBuffer
+      ).toString("base64")}`;
     }
-  )
+
+    const workspace = await databases.createDocument(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      ID.unique(),
+      {
+        name,
+        userId: user.$id,
+        imageUrl: uploadedImageUrl,
+        inviteCode: generateInviteCode(6),
+        createdBy: user.name || user.email, // Add this line - use name or email as fallback
+      }
+    );
+
+    await databases.createDocument(DATABASE_ID, MEMBERS_ID, ID.unique(), {
+      userId: user.$id,
+      workspaceId: workspace.$id,
+      role: MemberRole.ADMIN,
+    });
+
+    return c.json({ data: workspace });
+  }
+)
+
   .patch(
     "/:workspaceId",
     sessionMiddleware,

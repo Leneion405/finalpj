@@ -6,7 +6,6 @@ import { z } from "zod";
 
 import { getMember } from "@/features/members/utils";
 import { TaskStatus } from "@/features/tasks/types";
-
 import { DATABASE_ID, IMAGES_BUCKET_ID, PROJECTS_ID, TASKS_ID } from "@/config";
 import { sessionMiddleware } from "@/lib/session-middleware";
 
@@ -62,6 +61,8 @@ const app = new Hono()
           name,
           imageUrl: uploadedImageUrl,
           workspaceId,
+          createdBy: user.$id,                    // Add createdBy field
+          createdAt: new Date().toISOString(),    // Add createdAt field
         }
       );
 
@@ -75,7 +76,6 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-
       const { workspaceId } = c.req.valid("query");
 
       if (!workspaceId) {
@@ -92,7 +92,7 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
-      const projects = await databases.listDocuments<Project>(
+      const projects = await databases.listDocuments(
         DATABASE_ID,
         PROJECTS_ID,
         [Query.equal("workspaceId", workspaceId), Query.orderDesc("$createdAt")]
@@ -106,7 +106,7 @@ const app = new Hono()
     const databases = c.get("databases");
     const { projectId } = c.req.param();
 
-    const project = await databases.getDocument<Project>(
+    const project = await databases.getDocument(
       DATABASE_ID,
       PROJECTS_ID,
       projectId
@@ -136,7 +136,7 @@ const app = new Hono()
       const { projectId } = c.req.param();
       const { name, image } = c.req.valid("form");
 
-      const existingProject = await databases.getDocument<Project>(
+      const existingProject = await databases.getDocument(
         DATABASE_ID,
         PROJECTS_ID,
         projectId
@@ -177,7 +177,11 @@ const app = new Hono()
         DATABASE_ID,
         PROJECTS_ID,
         projectId,
-        { name, imageUrl: uploadedImageUrl }
+        { 
+          name, 
+          imageUrl: uploadedImageUrl 
+          // Don't update createdBy and createdAt on updates
+        }
       );
 
       return c.json({ data: project });
@@ -186,10 +190,9 @@ const app = new Hono()
   .delete("/:projectId", sessionMiddleware, async (c) => {
     const databases = c.get("databases");
     const user = c.get("user");
-
     const { projectId } = c.req.param();
 
-    const existingProject = await databases.getDocument<Project>(
+    const existingProject = await databases.getDocument(
       DATABASE_ID,
       PROJECTS_ID,
       projectId
@@ -205,8 +208,6 @@ const app = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    // TODO: Delete tasks
-
     await databases.deleteDocument(DATABASE_ID, PROJECTS_ID, projectId);
 
     return c.json({ data: { $id: existingProject.$id } });
@@ -216,7 +217,7 @@ const app = new Hono()
     const databases = c.get("databases");
     const { projectId } = c.req.param();
 
-    const project = await databases.getDocument<Project>(
+    const project = await databases.getDocument(
       DATABASE_ID,
       PROJECTS_ID,
       projectId

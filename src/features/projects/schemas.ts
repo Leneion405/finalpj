@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createProjectSchema = z.object({
-  name: z.string().trim().min(1, "Workspace name is required."),
+  name: z.string().trim().min(1, "Project name is required."),
   image: z
     .union([
       z.instanceof(File),
@@ -9,6 +9,8 @@ export const createProjectSchema = z.object({
     ])
     .optional(),
   workspaceId: z.string(),
+  createdBy: z.string().optional(), // Will be set automatically
+  createdAt: z.string().optional(), // Will be set automatically
 });
 
 export const updateProjectSchema = z.object({

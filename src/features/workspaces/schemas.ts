@@ -18,4 +18,5 @@ export const updateWorkspaceSchema = z.object({
       z.string().transform((value) => (value === "" ? undefined : value)),
     ])
     .optional(),
+  createdBy: z.string().optional(), // Add this for updates if needed
 });

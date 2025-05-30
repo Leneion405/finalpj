@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { Analytics } from "@/components/analytics";
 import { PageLoader } from "@/components/page-loader";
 import { PageError } from "@/components/page-error";
@@ -12,27 +10,98 @@ import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { useGetWorkspaceAnalytics } from "@/features/workspaces/api/use-get-workspace-analytics";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { RecentTasks } from "@/features/tasks/components/recent-tasks";
-import { useCreateProjectModal } from "@/features/projects/hooks/use-create-project-modal";
+import { RecentProjects } from "@/features/projects/components/recent-projects";
+import { EditWorkspaceForm } from "@/features/workspaces/components/edit-workspace-form";
+import { DeleteWorkspaceCard } from "@/features/workspaces/components/delete-workspace-form";
+import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Project } from "@/features/projects/types";
+import { Separator } from "@/components/ui/separator";
+import { RecentMembers } from "@/features/members/components/recent-members";
+import { MembersList } from "@/features/workspaces/components/members-list";
 
 export const WorkspaceIdClient = () => {
   const workspaceId = useWorkspaceId();
-  const { open: onOpen } = useCreateProjectModal(); // Add this line
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  const currentSection = searchParams.get('section');
   
   const { data: analytics, isLoading: isLoadingAnalytics } = useGetWorkspaceAnalytics({ workspaceId });
   const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId });
   const { data: projects, isLoading: isLoadingProjects } = useGetProjects({ workspaceId });
   const { data: members, isLoading: isLoadingMembers } = useGetMembers({ workspaceId });
+  const { data: workspace, isLoading: isLoadingWorkspace } = useGetWorkspace({ workspaceId });
 
-  const isLoading = isLoadingAnalytics || isLoadingTasks || isLoadingProjects || isLoadingMembers;
+  const isLoading = isLoadingAnalytics || isLoadingTasks || isLoadingProjects || isLoadingMembers || isLoadingWorkspace;
 
   if (isLoading) {
     return <PageLoader />;
   }
 
-  if (!analytics || !tasks || !projects || !members) {
-    return <PageError message="Failed to load workspace data." />;
+  // Show settings if section=settings
+  if (currentSection === "settings") {
+    if (!workspace) {
+      return <PageError message="Workspace not found" />;
+    }
+    
+    return (
+      <div className="w-full h-auto py-2">
+        <main>
+          <div className="w-full max-w-3xl mx-auto py-3">
+            <h2 className="text-[20px] leading-[30px] font-semibold mb-6">
+              Workspace settings
+            </h2>
+
+            <div className="flex flex-col pt-0.5 px-0">
+              <div className="pt-2">
+                <EditWorkspaceForm 
+                  initialValues={workspace}
+                  onCancel={() => {
+                    router.push(`/workspaces/${workspaceId}`);
+                  }}
+                />
+              </div>
+              
+              <Separator className="my-6" />
+              
+              <div className="pt-2">
+                <DeleteWorkspaceCard workspace={workspace} />
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
+  // Show members if section=members
+  if (currentSection === "members") {
+    return (
+      <div className="w-full h-auto py-2">
+        <main>
+          <div className="w-full max-w-3xl mx-auto py-3">
+            <h2 className="text-[20px] leading-[30px] font-semibold mb-6">
+              Members
+            </h2>
+
+            <div className="flex flex-col pt-0.5 px-0">
+              <div className="pt-2">
+                <MembersList />
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Handle undefined data with fallbacks
+  if (!analytics || !tasks || !projects) {
+    return <PageError message="Failed to load workspace data" />;
+  }
+
+  // Default dashboard view (your existing code)
   return (
     <div className="h-full flex flex-col space-y-4">
       <Analytics data={analytics} />
@@ -50,13 +119,22 @@ export const WorkspaceIdClient = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="projects">
-            {/* Add your recent projects component here */}
+            <RecentProjects 
+              data={projects.documents as Project[]} 
+              total={projects.total} 
+            />
           </TabsContent>
           <TabsContent value="tasks">
-            <RecentTasks data={tasks.documents} total={tasks.total} />
+            <RecentTasks 
+              data={tasks.documents} 
+              total={tasks.total} 
+            />
           </TabsContent>
           <TabsContent value="members">
-            {/* Add your recent members component here */}
+            <RecentMembers 
+              data={members?.documents || []} 
+              total={members?.total || 0} 
+            />
           </TabsContent>
         </Tabs>
       </div>
