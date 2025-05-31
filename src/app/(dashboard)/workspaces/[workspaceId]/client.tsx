@@ -19,6 +19,9 @@ import { Project } from "@/features/projects/types";
 import { Separator } from "@/components/ui/separator";
 import { RecentMembers } from "@/features/members/components/recent-members";
 import { MembersList } from "@/features/workspaces/components/members-list";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export const WorkspaceIdClient = () => {
   const workspaceId = useWorkspaceId();
@@ -48,12 +51,16 @@ export const WorkspaceIdClient = () => {
     return (
       <div className="w-full h-auto py-2">
         <main>
-          <div className="w-full max-w-3xl mx-auto py-3">
-            <h2 className="text-[20px] leading-[30px] font-semibold mb-6">
-              Workspace settings
-            </h2>
-
+          <div className="w-full max-w-15xl mx-auto py-3">
             <div className="flex flex-col pt-0.5 px-0">
+              <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="sm" asChild className="h-9 px-3">
+                          <Link href={`/workspaces/${workspaceId}`} className="flex items-center gap-2">
+                            <ArrowLeft className="w-4 h-4" />
+                            <span>Back</span>
+                          </Link>
+                        </Button>
+                      </div>
               <div className="pt-2">
                 <EditWorkspaceForm 
                   initialValues={workspace}
@@ -80,11 +87,7 @@ export const WorkspaceIdClient = () => {
     return (
       <div className="w-full h-auto py-2">
         <main>
-          <div className="w-full max-w-3xl mx-auto py-3">
-            <h2 className="text-[20px] leading-[30px] font-semibold mb-6">
-              Members
-            </h2>
-
+          <div className="w-full max-w-15xl mx-auto">
             <div className="flex flex-col pt-0.5 px-0">
               <div className="pt-2">
                 <MembersList />
@@ -104,6 +107,20 @@ export const WorkspaceIdClient = () => {
   // Default dashboard view (your existing code)
   return (
     <div className="h-full flex flex-col space-y-4">
+      {workspace && (
+  <div className="flex items-center gap-x-4 mb-4">
+    <div className="h-16 w-16 rounded-lg bg-blue-600 flex items-center justify-center text-white font-semibold text-xl">
+      {workspace.name?.charAt(0).toUpperCase()}
+    </div>
+    <div>
+      <h1 className="text-2xl font-bold text-foreground">{workspace.name}</h1>
+      {workspace.description && (
+        <p className="text-muted-foreground text-base mt-1">{workspace.description}</p>
+      )}
+    </div>
+  </div>
+)}
+
       <Analytics data={analytics} />
       <div className="mt-4">
         <Tabs defaultValue="projects" className="w-full border rounded-lg p-2">

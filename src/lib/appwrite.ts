@@ -1,6 +1,6 @@
 import "server-only";
 
-import { Client, Account, Users, Databases } from "node-appwrite";
+import { Client, Account, Users, Databases, Messaging } from "node-appwrite";
 import { cookies } from "next/headers";
 
 import { AUTH_COOKIE } from "@/features/auth/constants";
@@ -40,6 +40,9 @@ export async function createAdminClient() {
     },
     get users() {
       return new Users(client);
+    },
+     get messaging() {
+      return new Messaging(client);
     },
   };
 }

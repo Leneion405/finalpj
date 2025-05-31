@@ -8,7 +8,6 @@ import { getMember } from "@/features/members/utils";
 import { TaskStatus } from "@/features/tasks/types";
 import { DATABASE_ID, IMAGES_BUCKET_ID, PROJECTS_ID, TASKS_ID } from "@/config";
 import { sessionMiddleware } from "@/lib/session-middleware";
-
 import { createProjectSchema, updateProjectSchema } from "../schemas";
 import { Project } from "../types";
 
@@ -51,6 +50,8 @@ const app = new Hono()
         uploadedImageUrl = `data:image/png;base64,${Buffer.from(
           arrayBuffer
         ).toString("base64")}`;
+      } else {
+        uploadedImageUrl = ""; // Default empty string for imageUrl
       }
 
       const project = await databases.createDocument(
@@ -61,8 +62,8 @@ const app = new Hono()
           name,
           imageUrl: uploadedImageUrl,
           workspaceId,
-          createdBy: user.$id,                    // Add createdBy field
-          createdAt: new Date().toISOString(),    // Add createdAt field
+          createdBy: user.name || user.email,
+          createdAt: new Date().toISOString(),
         }
       );
 
@@ -111,6 +112,11 @@ const app = new Hono()
       PROJECTS_ID,
       projectId
     );
+
+    // Ensure the project has required fields
+    if (!project.name || !project.workspaceId || typeof project.imageUrl === 'undefined') {
+      return c.json({ error: "Invalid project data structure" }, 400);
+    }
 
     const member = await getMember({
       databases,
@@ -173,15 +179,15 @@ const app = new Hono()
         uploadedImageUrl = image;
       }
 
+      const updateData: any = {};
+      if (name !== undefined) updateData.name = name;
+      if (uploadedImageUrl !== undefined) updateData.imageUrl = uploadedImageUrl;
+
       const project = await databases.updateDocument(
         DATABASE_ID,
         PROJECTS_ID,
         projectId,
-        { 
-          name, 
-          imageUrl: uploadedImageUrl 
-          // Don't update createdBy and createdAt on updates
-        }
+        updateData
       );
 
       return c.json({ data: project });
@@ -285,8 +291,7 @@ const app = new Hono()
     );
 
     const assignedTaskCount = thisMonthAssignedTasks.total;
-    const assignedTaskDifference =
-      assignedTaskCount - lastMonthAssignedTasks.total;
+    const assignedTaskDifference = assignedTaskCount - lastMonthAssignedTasks.total;
 
     const thisMonthIncompleteTasks = await databases.listDocuments(
       DATABASE_ID,
@@ -311,8 +316,7 @@ const app = new Hono()
     );
 
     const incompleteTaskCount = thisMonthIncompleteTasks.total;
-    const incompleteTaskDifference =
-      incompleteTaskCount - lastMonthIncompleteTasks.total;
+    const incompleteTaskDifference = incompleteTaskCount - lastMonthIncompleteTasks.total;
 
     const thisMonthCompletedTasks = await databases.listDocuments(
       DATABASE_ID,
@@ -337,8 +341,7 @@ const app = new Hono()
     );
 
     const completedTaskCount = thisMonthCompletedTasks.total;
-    const completedTaskDifference =
-      completedTaskCount - lastMonthCompletedTasks.total;
+    const completedTaskDifference = completedTaskCount - lastMonthCompletedTasks.total;
 
     const thisMonthOverdueTasks = await databases.listDocuments(
       DATABASE_ID,
@@ -365,8 +368,7 @@ const app = new Hono()
     );
 
     const overdueTaskCount = thisMonthOverdueTasks.total;
-    const overdueTaskDifference =
-      overdueTaskCount - lastMonthOverdueTasks.total;
+    const overdueTaskDifference = overdueTaskCount - lastMonthOverdueTasks.total;
 
     return c.json({
       data: {

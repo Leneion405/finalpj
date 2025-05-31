@@ -1,9 +1,8 @@
 import { cn } from "@/lib/utils";
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface MemberAvatarProps {
-  name: string;
+  name?: string; // Make name optional for extra safety
   className?: string;
   fallbackClassName?: string;
 }
@@ -13,20 +12,16 @@ export const MemberAvatar = ({
   className,
   fallbackClassName,
 }: MemberAvatarProps) => {
+  // Safely get the first letter, or fallback to "U"
+  const initial =
+    typeof name === "string" && name.trim().length > 0
+      ? name.trim().charAt(0).toUpperCase()
+      : "U";
+
   return (
-    <Avatar
-      className={cn(
-        "size-5 transition border border-neutral-300 rounded-full",
-        className
-      )}
-    >
-      <AvatarFallback
-        className={cn(
-          "bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center",
-          fallbackClassName
-        )}
-      >
-        {name.charAt(0).toUpperCase()}
+    <Avatar className={className}>
+      <AvatarFallback className={fallbackClassName}>
+        {initial}
       </AvatarFallback>
     </Avatar>
   );

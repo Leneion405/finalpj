@@ -76,8 +76,7 @@ export const RecentTasks = ({ data, total }: RecentTasksProps) => {
       <div className="bg-muted rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2">
-            <p className="text-lg font-semibold">Recent Tasks</p>
-            <Badge variant="secondary">({total} total)</Badge>
+            <p className="text-lg font-semibold">Tasks ({total})</p>
           </div>
           <Button variant="muted" size="icon" onClick={createTask}>
             <PlusIcon className="size-4 text-neutral-400" />

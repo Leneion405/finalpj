@@ -1,7 +1,5 @@
 "use client";
 
-import { Loader, LogOut } from "lucide-react";
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,9 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DottedSeparator } from "@/components/dotted-separator";
-
-import { useLogout } from "../api/use-logout";
 import { useCurrent } from "../api/use-current";
+import { useLogout } from "../api/use-logout";
+import { Loader, LogOut, Edit } from "lucide-react";
+import Link from "next/link";
 
 export const UserButton = () => {
   const { data: user, isLoading } = useCurrent();
@@ -45,12 +44,7 @@ export const UserButton = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        side="bottom"
-        className="w-60"
-        sideOffset={10}
-      >
+      <DropdownMenuContent align="end" side="bottom" className="w-60" sideOffset={10}>
         <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
           <Avatar className="size-[52px] border border-neutral-300">
             <AvatarFallback className="bg-neutral-200 text-xl font-medium text-neutral-500 flex items-center justify-center">
@@ -65,6 +59,12 @@ export const UserButton = () => {
           </div>
         </div>
         <DottedSeparator className="mb-1" />
+        <DropdownMenuItem asChild className="h-10 flex items-center justify-center text-foreground font-medium cursor-pointer">
+          <Link href="/edit-profile">
+            <Edit className="size-4 mr-2" />
+            Edit Profile
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => logout()}
           className="h-10 flex items-center justify-center text-amber-700 font-medium cursor-pointer"

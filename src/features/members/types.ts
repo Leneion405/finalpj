@@ -10,3 +10,12 @@ export type Member = Models.Document & {
   userId: string;
   role: MemberRole;
 };
+
+export type MemberWithUserInfo = Member & {
+  name: string;
+  email: string;
+  phone?: string;
+  description?: string;
+  taskCompleted?: number;
+  role: MemberRole | "Owner"; // Allow both MemberRole and "Owner"
+};

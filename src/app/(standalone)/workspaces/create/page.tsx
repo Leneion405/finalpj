@@ -1,18 +1,24 @@
 import { redirect } from "next/navigation";
-
 import { getCurrent } from "@/features/auth/queries";
-import { CreateWorkspaceForm } from "@/features/workspaces/components/create-workspace-form";
+import { getWorkspaces } from "@/features/workspaces/queries";
+import { NoWorkspaceLanding } from "@/components/no-workspace-landing";
 
 const WorkspaceCreatePage = async () => {
   const user = await getCurrent();
+  
+  if (!user) {
+    redirect("/sign-in");
+  }
 
-  if (!user) redirect("/sign-in");
+  const workspaces = await getWorkspaces();
+  
+  // If user has workspaces, redirect to the first one
+  if (workspaces.total > 0) {
+    redirect(`/workspaces/${workspaces.documents[0].$id}`);
+  }
 
-  return (
-    <div className="w-full lg:max-w-xl">
-      <CreateWorkspaceForm />
-    </div>
-  );
+  // If no workspaces, show the landing page
+  return <NoWorkspaceLanding />;
 };
 
 export default WorkspaceCreatePage;

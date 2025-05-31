@@ -36,6 +36,7 @@ export const DeleteWorkspaceCard = ({ workspace }: DeleteWorkspaceCardProps) => 
 
   return (
     <>
+      <div className="max-w-10xl mx-auto">
       <DeleteDialog />
       <div className="mb-8">
         <h3 className="text-[17px] tracking-[-0.16px] dark:text-[#fcfdffef] font-semibold mb-4 text-red-600">
@@ -62,6 +63,7 @@ export const DeleteWorkspaceCard = ({ workspace }: DeleteWorkspaceCardProps) => 
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </>
   );

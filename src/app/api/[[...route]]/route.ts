@@ -1,3 +1,4 @@
+// app/api/[[...route]]/route.ts
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 
@@ -8,6 +9,7 @@ import projects from "@/features/projects/server/route";
 import tasks from "@/features/tasks/server/route";
 import invitations from "@/features/invitations/server/route";
 import users from "@/features/users/server/route"; 
+
 const app = new Hono().basePath("/api");
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -18,7 +20,7 @@ const routes = app
   .route("/projects", projects)
   .route("/tasks", tasks)
   .route("/invitations", invitations)
-  .route("/users", users);
+  .route("/users", users)
 
 export const GET = handle(app);
 export const POST = handle(app);

@@ -12,6 +12,7 @@ import { useCreateProjectModal } from "@/features/projects/hooks/use-create-proj
 import { MemberAvatar } from "@/features/members/components/member-avatar";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 import { Project } from "@/features/projects/types";
+import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
 
 interface RecentProjectsProps {
   data: Project[];
@@ -27,8 +28,7 @@ export const RecentProjects = ({ data, total }: RecentProjectsProps) => {
       <div className="bg-muted rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2">
-            <p className="text-lg font-semibold">Recent Projects</p>
-            <Badge variant="secondary">({total} total)</Badge>
+            <p className="text-lg font-semibold">Projects ({total})</p>
           </div>
           <Button variant="muted" size="icon" onClick={createProject}>
             <PlusIcon className="size-4 text-neutral-400" />
@@ -83,7 +83,7 @@ export const RecentProjects = ({ data, total }: RecentProjectsProps) => {
                             </span>
                             {project.createdBy ? (
                               <MemberAvatar
-                                name={`User ${project.createdBy.slice(-4)}`}
+                                name={project.createdBy}
                                 className="size-8"
                                 fallbackClassName="text-sm"
                               />

@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-
 import { client } from "@/lib/rpc";
-
-import { TaskStatus, TaskPriority } from "../types"; // <-- ADD TaskPriority import
+import { TaskStatus, TaskPriority, PopulatedTask } from "../types";
 
 interface UseGetTasksProps {
   workspaceId: string;
@@ -12,7 +10,7 @@ interface UseGetTasksProps {
   dueDate?: string | null;
   startDate?: string | null;
   search?: string | null;
-  priority?: TaskPriority | null; // <-- ADD THIS LINE
+  priority?: TaskPriority | null;
 }
 
 export const useGetTasks = ({
@@ -23,7 +21,7 @@ export const useGetTasks = ({
   startDate,
   dueDate,
   search,
-  priority, // <-- ADD THIS LINE
+  priority,
 }: UseGetTasksProps) => {
   const query = useQuery({
     queryKey: [
@@ -35,7 +33,7 @@ export const useGetTasks = ({
       startDate,
       dueDate,
       search,
-      priority, // <-- ADD THIS LINE
+      priority,
     ],
     queryFn: async () => {
       const response = await client.api.tasks.$get({
@@ -47,7 +45,7 @@ export const useGetTasks = ({
           dueDate: dueDate ?? undefined,
           startDate: startDate ?? undefined,
           search: search ?? undefined,
-          priority: priority ?? undefined, // <-- ADD THIS LINE
+          priority: priority ?? undefined,
         },
       });
 
@@ -56,7 +54,9 @@ export const useGetTasks = ({
       }
 
       const { data } = await response.json();
-      return data;
+      
+      // Type assertion to handle the API response structure
+      return data as { documents: PopulatedTask[]; total: number };
     },
   });
 

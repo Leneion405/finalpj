@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const createWorkspaceSchema = z.object({
   name: z.string().trim().min(1, "Workspace name is required."),
+  description: z.string().optional(),
   image: z
     .union([
       z.instanceof(File),
@@ -12,11 +13,12 @@ export const createWorkspaceSchema = z.object({
 
 export const updateWorkspaceSchema = z.object({
   name: z.string().trim().min(1, "Must be 1 or more characters.").optional(),
+  description: z.string().optional(),
   image: z
     .union([
       z.instanceof(File),
       z.string().transform((value) => (value === "" ? undefined : value)),
     ])
     .optional(),
-  createdBy: z.string().optional(), // Add this for updates if needed
+  createdBy: z.string().optional(),
 });

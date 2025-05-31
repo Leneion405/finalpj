@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { UserButton } from "@/features/auth/components/user-button";
+import { NotificationBell } from "@/features/invitations/components/notificationBell";
 
 interface StandaloneLayoutProps {
   children: React.ReactNode;
@@ -20,8 +21,10 @@ const StandaloneLayout = ({ children }: StandaloneLayoutProps) => {
               <p className="font-bold text-lg">Team Sync.</p>
             </Link>
           </div>
-
-          <UserButton />
+          <div className="flex items-center gap-x-2">
+            <NotificationBell />
+            <UserButton />
+          </div>
         </nav>
         <div className="flex flex-col items-center justify-center py-4">
           {children}

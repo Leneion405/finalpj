@@ -13,9 +13,11 @@ import { DottedSeparator } from "@/components/dotted-separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -33,35 +35,33 @@ interface CreateWorkspaceFormProps {
 export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
   const router = useRouter();
   const { mutate, isPending } = useCreateWorkspace();
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof createWorkspaceSchema>>({
     resolver: zodResolver(createWorkspaceSchema),
     defaultValues: {
       name: "",
+      description: "",
     },
   });
 
-  // In your form component, you can access createdBy after creation
-const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
-  const finalValues = {
-    ...values,
-    image: values.image instanceof File ? values.image : "",
+  const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
+    const finalValues = {
+      ...values,
+      image: values.image instanceof File ? values.image : "",
+    };
+
+    mutate(
+      { form: finalValues },
+      {
+        onSuccess: ({ data }) => {
+          form.reset();
+          console.log("Workspace created by:", data.createdBy);
+          router.push(`/workspaces/${data.$id}`);
+        },
+      }
+    );
   };
-
-  mutate(
-    { form: finalValues },
-    {
-      onSuccess: ({ data }) => {
-        form.reset();
-        console.log("Workspace created by:", data.createdBy); // You can use this
-        router.push(`/workspaces/${data.$id}`);
-      },
-    }
-  );
-};
-
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,6 +84,7 @@ const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-y-4">
+              {/* Workspace Name */}
               <FormField
                 control={form.control}
                 name="name"
@@ -91,12 +92,37 @@ const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
                   <FormItem>
                     <FormLabel>Workspace Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter workspace name" {...field} />
+                      <Input {...field} placeholder="Enter workspace name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {/* Workspace Description */}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Workspace Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          placeholder="Describe the purpose and goals of this workspace. You can include multiple paragraphs, mission statements, team information, and project details..."
+                          rows={8}
+                          className="resize-none"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Provide a comprehensive description of your workspace. Use line breaks to separate paragraphs and sections for better readability.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+              {/* Workspace Icon */}
               <FormField
                 control={form.control}
                 name="image"
@@ -106,14 +132,14 @@ const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
                       {field.value ? (
                         <div className="size-[72px] relative rounded-md overflow-hidden">
                           <Image
+                            alt="Logo"
+                            fill
+                            className="object-cover"
                             src={
                               field.value instanceof File
                                 ? URL.createObjectURL(field.value)
                                 : field.value
                             }
-                            alt="Logo"
-                            fill
-                            className="object-cover"
                           />
                         </div>
                       ) : (
@@ -130,17 +156,17 @@ const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
                         </p>
                         <input
                           className="hidden"
-                          accept=".jpg, .png, .jpeg, .svg"
                           type="file"
+                          accept=".jpg, .png, .jpeg, .svg"
                           ref={inputRef}
                           onChange={handleImageChange}
                           disabled={isPending}
                         />
                         {field.value ? (
                           <Button
-                            variant="destructive"
                             type="button"
                             disabled={isPending}
+                            variant="destructive"
                             size="xs"
                             className="w-fit mt-2"
                             onClick={() => {
@@ -154,9 +180,9 @@ const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
                           </Button>
                         ) : (
                           <Button
-                            variant="teritary"
                             type="button"
                             disabled={isPending}
+                            variant="teritary"
                             size="xs"
                             className="w-fit mt-2"
                             onClick={() => inputRef.current?.click()}
@@ -182,7 +208,7 @@ const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
               >
                 Cancel
               </Button>
-              <Button type="submit" size="lg" disabled={isPending}>
+              <Button disabled={isPending} type="submit" size="lg">
                 Create Workspace
               </Button>
             </div>

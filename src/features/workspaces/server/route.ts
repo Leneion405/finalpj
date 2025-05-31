@@ -87,58 +87,58 @@ const app = new Hono()
     });
   })
   .post(
-  "/",
-  zValidator("form", createWorkspaceSchema),
-  sessionMiddleware,
-  async (c) => {
-    const databases = c.get("databases");
-    const storage = c.get("storage");
-    const user = c.get("user");
+    "/",
+    zValidator("form", createWorkspaceSchema),
+    sessionMiddleware,
+    async (c) => {
+      const databases = c.get("databases");
+      const storage = c.get("storage");
+      const user = c.get("user");
 
-    const { name, image } = c.req.valid("form");
+      const { name, image, description } = c.req.valid("form");
 
-    let uploadedImageUrl: string | undefined;
+      let uploadedImageUrl: string | undefined;
 
-    if (image instanceof File) {
-      const file = await storage.createFile(
-        IMAGES_BUCKET_ID,
-        ID.unique(),
-        image
-      );
+      if (image instanceof File) {
+        const file = await storage.createFile(
+          IMAGES_BUCKET_ID,
+          ID.unique(),
+          image
+        );
 
-      const arrayBuffer = await storage.getFilePreview(
-        IMAGES_BUCKET_ID,
-        file.$id
-      );
+        const arrayBuffer = await storage.getFilePreview(
+          IMAGES_BUCKET_ID,
+          file.$id
+        );
 
-      uploadedImageUrl = `data:image/png;base64,${Buffer.from(
-        arrayBuffer
-      ).toString("base64")}`;
-    }
-
-    const workspace = await databases.createDocument(
-      DATABASE_ID,
-      WORKSPACES_ID,
-      ID.unique(),
-      {
-        name,
-        userId: user.$id,
-        imageUrl: uploadedImageUrl,
-        inviteCode: generateInviteCode(6),
-        createdBy: user.name || user.email, // Add this line - use name or email as fallback
+        uploadedImageUrl = `data:image/png;base64,${Buffer.from(
+          arrayBuffer
+        ).toString("base64")}`;
       }
-    );
 
-    await databases.createDocument(DATABASE_ID, MEMBERS_ID, ID.unique(), {
-      userId: user.$id,
-      workspaceId: workspace.$id,
-      role: MemberRole.ADMIN,
-    });
+      const workspace = await databases.createDocument(
+        DATABASE_ID,
+        WORKSPACES_ID,
+        ID.unique(),
+        {
+          name,
+          description: description || "", // Add description field
+          userId: user.$id,
+          imageUrl: uploadedImageUrl,
+          inviteCode: generateInviteCode(6),
+          createdBy: user.name || user.email,
+        }
+      );
 
-    return c.json({ data: workspace });
-  }
-)
+      await databases.createDocument(DATABASE_ID, MEMBERS_ID, ID.unique(), {
+        userId: user.$id,
+        workspaceId: workspace.$id,
+        role: MemberRole.ADMIN,
+      });
 
+      return c.json({ data: workspace });
+    }
+  )
   .patch(
     "/:workspaceId",
     sessionMiddleware,
@@ -149,7 +149,7 @@ const app = new Hono()
       const user = c.get("user");
 
       const { workspaceId } = c.req.param();
-      const { name, image } = c.req.valid("form");
+      const { name, image, description } = c.req.valid("form");
 
       const member = await getMember({
         databases,
@@ -182,11 +182,16 @@ const app = new Hono()
         uploadedImageUrl = image;
       }
 
+      const updateData: any = {};
+      if (name !== undefined) updateData.name = name;
+      if (description !== undefined) updateData.description = description; // Add description
+      if (uploadedImageUrl !== undefined) updateData.imageUrl = uploadedImageUrl;
+
       const workspace = await databases.updateDocument(
         DATABASE_ID,
         WORKSPACES_ID,
         workspaceId,
-        { name, imageUrl: uploadedImageUrl }
+        updateData
       );
 
       return c.json({ data: workspace });

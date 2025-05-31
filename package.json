@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@dhtmlx/trial-react-gantt": "^1.1.4",
+    "@emailjs/browser": "^4.4.1",
     "@hello-pangea/dnd": "17.0.0",
     "@hono/zod-validator": "^0.4.1",
     "@hookform/resolvers": "^3.9.1",

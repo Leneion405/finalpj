@@ -8,12 +8,14 @@ export enum TaskStatus {
   IN_REVIEW = "IN_REVIEW",
   DONE = "DONE",
 }
+
 export enum TaskPriority {
   LOW = "LOW",
   MEDIUM = "MEDIUM",
   HIGH = "HIGH",
 }
 
+// Base Task interface
 export interface Task extends Models.Document {
   // Required
   name: string;
@@ -24,11 +26,32 @@ export interface Task extends Models.Document {
   description?: string;
   assigneeId?: string;
   startDate?: string; // ISO date string format
-  dueDate?: string;   // ISO date string format
+  dueDate?: string; // ISO date string format
   dependencyIds?: string[];
   priority?: TaskPriority;
 }
 
+// Task with populated project and assignee
+export interface PopulatedTask extends Task {
+  project?: {
+    $id: string;
+    name: string;
+    imageUrl?: string;
+    workspaceId: string;
+    [key: string]: any;
+  } | null;
+  assignee?: {
+    $id: string;
+    name: string;
+    email: string;
+    userId: string;
+    workspaceId: string;
+    role: string;
+    [key: string]: any;
+  } | null;
+}
+
+// Legacy interface for backwards compatibility
 export interface TaskWithProject extends Task {
   project: {
     name: string;

@@ -1,7 +1,19 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { ArrowLeft, MoreVerticalIcon, UserPlus, Crown, User, Shield } from "lucide-react";
+import { 
+  ArrowLeft, 
+  MoreVertical, 
+  UserPlus, 
+  Crown, 
+  User, 
+  Shield, 
+  Mail, 
+  Copy,
+  Plus,
+  Search,
+  Filter
+} from "lucide-react";
 import Link from "next/link";
 import { MemberAvatar } from "@/features/members/components/member-avatar";
 import { useGetMembers } from "@/features/members/api/use-get-members";
@@ -13,16 +25,15 @@ import { MemberRole } from "@/features/members/types";
 import { useConfirm } from "@/hooks/use-confirm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DottedSeparator } from "@/components/dotted-separator";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
-import { RiAddCircleFill } from "react-icons/ri";
 import {
   Dialog,
   DialogContent,
@@ -30,20 +41,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AllMembersCard } from "@/features/members/components/all-members-list";
-import { Input } from "@/components/ui/input";
-import { CopyIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useCurrent } from "@/features/auth/api/use-current";
+import { SendInviteEmail } from "@/features/invitations/components/send-invite-email";
 
 export const MembersList = () => {
   const workspaceId = useWorkspaceId();
   const [ConfirmDialog, confirm] = useConfirm(
     "Remove member",
-    "This member will be removed from the workspace.",
+    "This member will be removed from the workspace and will lose access to all projects and data.",
     "destructive"
   );
 
   const [open, setOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: currentUser } = useCurrent();
   const { data } = useGetMembers({ workspaceId });
@@ -81,13 +93,13 @@ export const MembersList = () => {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case "Owner":
-        return <Shield className="size-3" />;
+        return <Crown className="w-3 h-3" />;
       case MemberRole.ADMIN:
-        return <Crown className="size-3" />;
+        return <Shield className="w-3 h-3" />;
       case MemberRole.MEMBER:
-        return <User className="size-3" />;
+        return <User className="w-3 h-3" />;
       default:
-        return <User className="size-3" />;
+        return <User className="w-3 h-3" />;
     }
   };
 
@@ -104,16 +116,13 @@ export const MembersList = () => {
   // Check if current user is admin or owner
   const canManageMembers = () => {
     if (!currentUser || !data) return false;
-    
-    // If user is workspace owner, they can manage
+
     if (isCurrentUserOwner()) return true;
-    
-    // Find current user's member record
+
     const currentUserMember = data.documents.find(
       member => member.userId === currentUser.$id
     );
-    
-    // If user is admin, they can manage
+
     return currentUserMember?.role === MemberRole.ADMIN;
   };
 
@@ -128,6 +137,7 @@ export const MembersList = () => {
     if (isWorkspaceOwner(member)) {
       return "Owner";
     }
+
     switch (member.role) {
       case MemberRole.ADMIN:
         return "Admin";
@@ -140,181 +150,273 @@ export const MembersList = () => {
 
   // Check if current user can edit a specific member
   const canEditMember = (member: any) => {
-    // Can't edit if user doesn't have management permissions
     if (!canManageMembers()) return false;
-    
-    // Can't edit the workspace owner
     if (isWorkspaceOwner(member)) return false;
-    
-    // Owner can edit anyone (except other owners)
     if (isCurrentUserOwner()) return true;
-    
-    // Admins can only edit regular members, not other admins
     if (member.role === MemberRole.ADMIN) return false;
-    
     return true;
   };
 
+  // Filter members based on search term
+  const filteredMembers = data?.documents.filter(member =>
+    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.email.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
   // Create invite link
-  const fullInviteLink = workspace 
+  const fullInviteLink = workspace
     ? `${window.location.origin}/workspaces/${workspaceId}/join/${workspace.inviteCode}`
     : "";
 
   const handleCopyInviteLink = () => {
     navigator.clipboard
       .writeText(fullInviteLink)
-      .then(() => toast.success("Invite link copied to clipboard."));
+      .then(() => toast.success("Invite link copied to clipboard"));
   };
 
   return (
-    <>
-      <ConfirmDialog />
-      <Card className="w-full h-full border-none shadow-none">
-        <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
-          <Button variant="secondary" size="sm" asChild>
-            <Link href={`/workspaces/${workspaceId}`}>
-              <ArrowLeft className="size-4 mr-2" />
-              Back
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" asChild className="h-9 px-3">
+            <Link href={`/workspaces/${workspaceId}`} className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
             </Link>
           </Button>
-          <CardTitle className="text-xl font-bold">Members List</CardTitle>
-          {/* Only show add member button if user can manage members */}
-          {canManageMembers() && (
-            <RiAddCircleFill
-              onClick={() => setOpen(true)}
-              className="size-5 text-neutral-500 cursor-pointer hover:opacity-75 transition"
-            />
-          )}
-        </CardHeader>
-        <div className="px-7">
-          <DottedSeparator />
         </div>
-        <CardContent className="p-7">
-          {/* Scrollable Members List - Max 5 visible */}
-          <div className="max-h-[400px] overflow-y-auto pr-2">
-            {data?.documents.map((member, index) => (
-              <Fragment key={member.$id}>
-                <div className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-x-3">
-                    <MemberAvatar
-                      className="size-10"
-                      fallbackClassName="text-lg"
-                      name={member.name}
+        
+        {canManageMembers() && (
+          <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Add Members
+          </Button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Members List - Takes 2/3 width */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold">
+                  Members ({filteredMembers.length})
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Search members..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 w-64"
                     />
-                    <div className="flex flex-col">
-                      <p className="text-sm font-medium">{member.name}</p>
-                      <p className="text-xs text-muted-foreground">{member.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-x-3">
-                    <Badge 
-                      variant={getRoleBadgeVariant(getMemberRole(member))}
-                      className="text-xs gap-x-1"
-                    >
-                      {getRoleIcon(getMemberRole(member))}
-                      {getMemberRoleDisplay(member)}
-                    </Badge>
-                    
-                    {/* Only show dropdown if user can edit this member */}
-                    {canEditMember(member) && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
-                            <MoreVerticalIcon className="size-4 text-muted-foreground" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent side="bottom" align="end">
-                          <DropdownMenuItem
-                            className="font-medium"
-                            onClick={() =>
-                              handleUpdateMember(member.$id, MemberRole.ADMIN)
-                            }
-                            disabled={isUpdatingMember}
-                          >
-                            <Crown className="size-4 mr-2" />
-                            Set as Admin
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="font-medium"
-                            onClick={() =>
-                              handleUpdateMember(member.$id, MemberRole.MEMBER)
-                            }
-                            disabled={isUpdatingMember}
-                          >
-                            <User className="size-4 mr-2" />
-                            Set as Member
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="font-medium text-red-600"
-                            onClick={() => handleDeleteMember(member.$id)}
-                            disabled={isDeletingMember}
-                          >
-                            Remove {member.name}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
                   </div>
                 </div>
-                {index < data.documents.length - 1 && (
-                  <Separator className="my-2" />
-                )}
-              </Fragment>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Invite Members Section - Only show if user can manage members */}
-      {canManageMembers() && (
-        <Card className="w-full h-full border-none shadow-none mt-6">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Invite Members</CardTitle>
-          </CardHeader>
-          <div className="px-7">
-            <DottedSeparator />
-          </div>
-          <CardContent className="p-7">
-            <div className="flex flex-col">
-              <p className="text-sm text-muted-foreground mb-4">
-                Share this invite link to add members to your workspace.
-              </p>
-              <div className="flex items-center gap-x-2">
-                <Input 
-                  disabled 
-                  value={fullInviteLink} 
-                  className="font-mono text-sm"
-                />
-                <Button
-                  onClick={handleCopyInviteLink}
-                  variant="outline"
-                  size="sm"
-                  className="shrink-0"
-                >
-                  <CopyIcon className="size-4 mr-2" />
-                  Copy
-                </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Anyone with this link can join your workspace as a member.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            </CardHeader>
+            
+            <CardContent className="p-0">
+              <div className="divide-y divide-gray-100">
+                {filteredMembers.map((member) => (
+                  <div key={member.$id} className="p-6 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <MemberAvatar
+                          className="w-12 h-12"
+                          name={member.name}
+                        />
+                        <div className="flex flex-col">
+                          <Link 
+                            href={`/workspaces/${workspaceId}/members/${member.$id}`}
+                            className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                          >
+                            {member.name}
+                          </Link>
+                          <p className="text-sm text-gray-500">{member.email}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Joined {new Date(member.$createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <Badge 
+                          variant={getRoleBadgeVariant(getMemberRole(member))}
+                          className="flex items-center gap-1.5 px-3 py-1"
+                        >
+                          {getRoleIcon(getMemberRole(member))}
+                          {getMemberRoleDisplay(member)}
+                        </Badge>
+                        
+                        {canEditMember(member) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateMember(member.$id, MemberRole.ADMIN)}
+                                disabled={isUpdatingMember}
+                              >
+                                <Shield className="w-4 h-4 mr-2" />
+                                Promote to Admin
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateMember(member.$id, MemberRole.MEMBER)}
+                                disabled={isUpdatingMember}
+                              >
+                                <User className="w-4 h-4 mr-2" />
+                                Set as Member
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-red-600 focus:text-red-600"
+                                onClick={() => handleDeleteMember(member.$id)}
+                                disabled={isDeletingMember}
+                              >
+                                Remove from workspace
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {filteredMembers.length === 0 && (
+                  <div className="p-12 text-center">
+                    <User className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No members found</h3>
+                    <p className="text-gray-500">
+                      {searchTerm ? "Try adjusting your search terms" : "No members in this workspace yet"}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Dialog for AllMembersCard - Only show if user can manage members */}
+        {/* Sidebar - Takes 1/3 width */}
+        <div className="space-y-6">
+          {/* Workspace Stats */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Workspace Stats</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Total Members</span>
+                <span className="font-semibold">{data?.documents.length || 0}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Admins</span>
+                <span className="font-semibold">
+                  {data?.documents.filter(m => m.role === MemberRole.ADMIN || isWorkspaceOwner(m)).length || 0}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Members</span>
+                <span className="font-semibold">
+                  {data?.documents.filter(m => m.role === MemberRole.MEMBER && !isWorkspaceOwner(m)).length || 0}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Invite Members Card */}
+          {canManageMembers() && (
+        <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Invite Members</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Invite Code */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-gray-600">Code</label>
+                <div className="flex gap-1">
+                  <Input 
+                    value={workspace?.inviteCode || ""} 
+                    readOnly 
+                    className="text-center font-mono text-sm font-bold bg-blue-50 h-8"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(workspace?.inviteCode || "")
+                        .then(() => toast.success("Code copied"));
+                    }}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Invite Link */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-gray-600">Link</label>
+                <div className="flex gap-1">
+                  <Input 
+                    value={fullInviteLink} 
+                    readOnly 
+                    className="text-xs bg-gray-50 font-mono h-8"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopyInviteLink}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => setEmailDialogOpen(true)}
+                variant="outline"
+                size="sm"
+                className="w-full h-8"
+              >
+                <Mail className="w-3 h-3 mr-1" />
+                Email
+              </Button>
+            </CardContent>
+          </Card>
+
+          )}
+        </div>
+      </div>
+
+      {/* Dialogs */}
       {canManageMembers() && (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>All Members</DialogTitle>
+              <DialogTitle>Manage Members</DialogTitle>
             </DialogHeader>
             <AllMembersCard />
           </DialogContent>
         </Dialog>
       )}
-    </>
+
+      <SendInviteEmail
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        workspaceName={workspace?.name || ""}
+        inviteCode={workspace?.inviteCode || ""}
+        workspaceId={workspaceId}
+      />
+
+      <ConfirmDialog />
+    </div>
   );
 };
