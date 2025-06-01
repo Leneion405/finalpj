@@ -1,10 +1,8 @@
-//D:\finalpj\src\app\(auth)\layout.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
 
 interface AuthLayoutProps {
@@ -19,20 +17,12 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
     <main className="bg-neutral-100 min-h-screen">
       <div className="mx-auto max-w-screen-2xl p-4">
         <nav className="flex justify-between items-center">
-         <div className="flex items-center gap-2">
-            <Link href="/">
-              <Image src="/logo.svg" alt="logo" width={50} height={39} />
-            </Link>
-            <Link href="/">
-              <p className="font-bold text-lg">Team Sync.</p>
-            </Link>
-          </div>
-
-          <Button asChild variant="secondary">
-            <Link href={isSignIn ? "/sign-up" : "/sign-in"}>
+          <Image src="/logo.svg" height={56} width={152} alt="Team Sync." />
+          <Link href={isSignIn ? "/sign-up" : "/sign-in"}>
+            <Button variant="secondary">
               {isSignIn ? "Sign Up" : "Login"}
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </nav>
         <div className="flex flex-col items-center justify-center pt-4 md:pt-14">
           {children}

@@ -1,4 +1,3 @@
-//D:\finalpj\src\app\(auth)\page.tsx
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,7 +15,8 @@ const HomePage = () => {
         </div>
 
         <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
-          Organize your <span className="text-blue-600">projects</span> and <span className="text-blue-600">teams</span> with ease.
+          Organize your <span className="text-blue-600">projects</span> and{" "}
+          <span className="text-blue-600">teams</span> with ease.
         </h1>
 
         <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
@@ -25,7 +25,6 @@ const HomePage = () => {
 
         <Link
           href="/sign-in"
-          target="_blank"
           className={buttonVariants({
             size: "lg",
             className: "mt-5",
@@ -35,7 +34,7 @@ const HomePage = () => {
         </Link>
       </MaxWidthWrapper>
 
-      {/* Value Proposition Section */}
+      {/* Value proposition section */}
       <div>
         <div className="relative isolate">
           <div
@@ -56,8 +55,8 @@ const HomePage = () => {
               <div className="mt-16 flow-root sm:mt-24">
                 <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                   <Image
-                    src="/workspace-dashboard-preview.jpg"
-                    alt="WorkspacePro dashboard preview"
+                    src="/dashboard-preview.jpg"
+                    alt="product preview"
                     width={1364}
                     height={866}
                     quality={100}
@@ -83,15 +82,15 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Feature Section */}
-      <div className="mx-auto mb-32 mt-20 max-w-5xl sm:mt-30">
+      {/* Feature section */}
+      <div className="mx-auto mb-32 mt-32 max-w-5xl sm:mt-56">
         <div className="mb-12 px-6 lg:px-8">
           <div className="mx-auto max-w-2xl sm:text-center">
             <h2 className="mt-2 font-bold text-4xl text-gray-900 sm:text-5xl">
               Get your team organized in minutes
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              WorkspacePro makes project management simple, visual, and collaborative.
+              Collab Flow makes project management simple, visual, and collaborative.
             </p>
           </div>
         </div>
@@ -133,13 +132,13 @@ const HomePage = () => {
           </li>
         </ol>
 
-        {/* Upload/Feature Preview */}
+        {/* Feature preview */}
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="mt-16 flow-root sm:mt-24">
             <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
               <Image
-                src="/project-tasks-preview.jpg"
-                alt="Project and tasks preview"
+                src="/file-upload-preview.jpg"
+                alt="uploading preview"
                 width={1419}
                 height={732}
                 quality={100}
