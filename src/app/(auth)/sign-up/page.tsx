@@ -1,3 +1,4 @@
+//D:\finalpj\src\app\(auth)\sign-up\page.tsx
 import { redirect } from "next/navigation";
 
 import { getCurrent } from "@/features/auth/queries";

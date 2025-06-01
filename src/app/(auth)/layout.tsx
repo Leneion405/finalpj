@@ -1,3 +1,4 @@
+//D:\finalpj\src\app\(auth)\layout.tsx
 "use client";
 
 import Image from "next/image";
