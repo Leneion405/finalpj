@@ -1,8 +1,6 @@
 import { toast } from "sonner";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferResponseType } from "hono";
-
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 
@@ -19,8 +17,9 @@ export const useLogout = () => {
     },
     onSuccess: () => {
       toast.success("Logged out.");
-      router.refresh();
       queryClient.invalidateQueries();
+      router.push("/"); // ← Redirect to sign-in after logout
+      router.refresh();
     },
     onError: () => {
       toast.error("Failed to log out.");

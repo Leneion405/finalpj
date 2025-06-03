@@ -1,8 +1,6 @@
 import { toast } from "sonner";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
-
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 
@@ -20,8 +18,9 @@ export const useLogin = () => {
     },
     onSuccess: () => {
       toast.success("Logged in.");
-      router.refresh();
       queryClient.invalidateQueries({ queryKey: ["current"] });
+      router.push("/dashboard"); // ← Changed from "/" to "/dashboard"
+      router.refresh();
     },
     onError: () => {
       toast.error("Failed to log in.");

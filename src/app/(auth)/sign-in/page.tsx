@@ -3,9 +3,13 @@ import { getCurrent } from "@/features/auth/queries";
 import { SignInCard } from "@/features/auth/components/sign-in-card";
 
 const SignInPage = async () => {
-  const user = await getCurrent();
-  if (user) redirect("/");
-  return <SignInCard />;  // ← Add this component!
+  try {
+    const user = await getCurrent();
+    if (user) redirect("/dashboard"); // ← Changed from "/" to "/dashboard"
+    return <SignInCard />;
+  } catch (error) {
+    return <SignInCard />;
+  }
 };
 
 export default SignInPage;
