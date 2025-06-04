@@ -21,7 +21,54 @@ import { RecentMembers } from "@/features/members/components/recent-members";
 import { MembersList } from "@/features/workspaces/components/members-list";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+
+// Expandable text component for long descriptions
+const ExpandableText = ({ text, maxLength = 200 }: { text: string; maxLength?: number }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (text.length <= maxLength) {
+    return <p className="text-muted-foreground text-base mt-1 leading-relaxed">{text}</p>;
+  }
+  
+  const truncatedText = text.slice(0, maxLength);
+  
+  return (
+    <div className="mt-1">
+      <p className="text-muted-foreground text-base leading-relaxed">
+        {isExpanded ? text : `${truncatedText}...`}
+      </p>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-1 flex items-center gap-1 transition-colors"
+      >
+        {isExpanded ? (
+          <>
+            Show less <ChevronUp className="w-3 h-3" />
+          </>
+        ) : (
+          <>
+            Show more <ChevronDown className="w-3 h-3" />
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
+
+// Fixed workspace avatar component
+const WorkspaceAvatar = ({ name, className }: { name: string; className?: string }) => {
+  return (
+    <div className={cn(
+      "flex-shrink-0 h-16 w-16 rounded-lg bg-blue-600 flex items-center justify-center text-white font-semibold text-xl",
+      className
+    )}>
+      {name?.charAt(0).toUpperCase()}
+    </div>
+  );
+};
 
 export const WorkspaceIdClient = () => {
   const workspaceId = useWorkspaceId();
@@ -54,13 +101,13 @@ export const WorkspaceIdClient = () => {
           <div className="w-full max-w-15xl mx-auto py-3">
             <div className="flex flex-col pt-0.5 px-0">
               <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="sm" asChild className="h-9 px-3">
-                          <Link href={`/workspaces/${workspaceId}`} className="flex items-center gap-2">
-                            <ArrowLeft className="w-4 h-4" />
-                            <span>Back</span>
-                          </Link>
-                        </Button>
-                      </div>
+                <Button variant="ghost" size="sm" asChild className="h-9 px-3">
+                  <Link href={`/workspaces/${workspaceId}`} className="flex items-center gap-2">
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Back</span>
+                  </Link>
+                </Button>
+              </div>
               <div className="pt-2">
                 <EditWorkspaceForm 
                   initialValues={workspace}
@@ -104,24 +151,31 @@ export const WorkspaceIdClient = () => {
     return <PageError message="Failed to load workspace data" />;
   }
 
-  // Default dashboard view (your existing code)
+  // Default dashboard view with fixed layout
   return (
     <div className="h-full flex flex-col space-y-4">
       {workspace && (
-  <div className="flex items-center gap-x-4 mb-4">
-    <div className="h-16 w-16 rounded-lg bg-blue-600 flex items-center justify-center text-white font-semibold text-xl">
-      {workspace.name?.charAt(0).toUpperCase()}
-    </div>
-    <div>
-      <h1 className="text-2xl font-bold text-foreground">{workspace.name}</h1>
-      {workspace.description && (
-        <p className="text-muted-foreground text-base mt-1">{workspace.description}</p>
+        <div className="flex items-start gap-x-4 mb-4">
+          {/* Fixed size avatar that won't shrink */}
+          <WorkspaceAvatar name={workspace.name} />
+          
+          {/* Content area with proper text handling */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-foreground break-words">
+              {workspace.name}
+            </h1>
+            {workspace.description && (
+              <ExpandableText 
+                text={workspace.description} 
+                maxLength={200} 
+              />
+            )}
+          </div>
+        </div>
       )}
-    </div>
-  </div>
-)}
 
       <Analytics data={analytics} />
+      
       <div className="mt-4">
         <Tabs defaultValue="projects" className="w-full border rounded-lg p-2">
           <TabsList className="w-full justify-start border-0 bg-gray-50 px-1 h-12">

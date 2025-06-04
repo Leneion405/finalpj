@@ -1,11 +1,5 @@
-// src/app/oauth/route.js
-// Reference: https://appwrite.io/docs/tutorials/nextjs-ssr-auth/step-7
-
 import { AUTH_COOKIE } from "@/features/auth/constants";
-
 import { createAdminClient } from "@/lib/appwrite";
-
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -19,12 +13,14 @@ export async function GET(request: NextRequest) {
   const { account } = await createAdminClient();
   const session = await account.createSession(userId, secret);
 
-  cookies().set(AUTH_COOKIE, session.secret, {
+  // Only set secure: true in production!
+  const response = NextResponse.redirect(`${request.nextUrl.origin}/dashboard`);
+  response.cookies.set(AUTH_COOKIE, session.secret, {
     path: "/",
     httpOnly: true,
     sameSite: "strict",
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
   });
 
-  return NextResponse.redirect(`${request.nextUrl.origin}/`);
+  return response;
 }

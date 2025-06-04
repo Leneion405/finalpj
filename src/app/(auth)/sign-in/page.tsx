@@ -5,11 +5,10 @@ import { SignInCard } from "@/features/auth/components/sign-in-card";
 const SignInPage = async () => {
   try {
     const user = await getCurrent();
-    if (user) redirect("/dashboard"); // ← Changed from "/" to "/dashboard"
+    if (user) redirect("/dashboard");
     return <SignInCard />;
   } catch (error) {
     return <SignInCard />;
   }
 };
-
 export default SignInPage;

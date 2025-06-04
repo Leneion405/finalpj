@@ -24,20 +24,20 @@ export const RecentMembers = ({ data, total }: RecentMembersProps) => {
   const isWorkspaceOwner = (member: Member) => workspace?.userId === member.userId;
   const getMemberRole = (member: Member) => (isWorkspaceOwner(member) ? "Owner" : member.role);
 
-  // Sorting: Most recent members first, Owner at the bottom
+  // Sorting: Members first, Admins second, Owner last
   const sortedMembers = [...data].sort((a, b) => {
-    // 1. Owner goes to the bottom (reverse of previous logic)
+    // 1. Owner goes to the bottom
     if (isWorkspaceOwner(a) && !isWorkspaceOwner(b)) return 1;  // Owner goes after non-owners
     if (!isWorkspaceOwner(a) && isWorkspaceOwner(b)) return -1; // Non-owners go before owner
 
-    // 2. For non-owners, sort by role hierarchy (Admin > Member)
+    // 2. For non-owners, sort by role hierarchy (Member first, Admin second)
     if (!isWorkspaceOwner(a) && !isWorkspaceOwner(b)) {
-      const roleOrder = { [MemberRole.ADMIN]: 2, [MemberRole.MEMBER]: 1 };
+      const roleOrder = { [MemberRole.MEMBER]: 1, [MemberRole.ADMIN]: 2 }; // Changed: Member=1, Admin=2
       const roleA = roleOrder[a.role] || 0;
       const roleB = roleOrder[b.role] || 0;
       
       if (roleA !== roleB) {
-        return roleB - roleA; // Higher role first
+        return roleA - roleB; // Changed: Lower number first (Member before Admin)
       }
     }
 

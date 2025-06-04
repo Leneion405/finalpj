@@ -51,16 +51,17 @@ const HomePage = () => {
           </div>
 
           <div>
-            <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mt-16 flow-root sm:mt-24">
                 <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+                  {/* Full size dashboard preview */}
                   <Image
                     src="/dashboard-preview.jpg"
                     alt="product preview"
                     width={1364}
                     height={866}
                     quality={100}
-                    className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
+                    className="w-full h-auto rounded-md bg-white shadow-2xl ring-1 ring-gray-900/10"
                   />
                 </div>
               </div>
@@ -83,7 +84,7 @@ const HomePage = () => {
       </div>
 
       {/* Feature section */}
-      <div className="mx-auto mb-32 mt-32 max-w-5xl sm:mt-56">
+      <div className="mx-auto mb-32 mt-10 max-w-5xl sm:mt-20">
         <div className="mb-12 px-6 lg:px-8">
           <div className="mx-auto max-w-2xl sm:text-center">
             <h2 className="mt-2 font-bold text-4xl text-gray-900 sm:text-5xl">
@@ -133,16 +134,17 @@ const HomePage = () => {
         </ol>
 
         {/* Feature preview */}
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mt-16 flow-root sm:mt-24">
             <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+              {/* Full size website preview */}
               <Image
-                src="/file-upload-preview.jpg"
+                src="/task-preview.jpg"
                 alt="uploading preview"
                 width={1419}
                 height={732}
                 quality={100}
-                className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
+                className="w-full h-auto rounded-md bg-white shadow-2xl ring-1 ring-gray-900/10"
               />
             </div>
           </div>

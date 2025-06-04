@@ -22,7 +22,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
               <Image src="/logo.svg" alt="logo" width={50} height={39} />
             </Link>
             <Link href="/">
-              <p className="font-bold text-lg">Team Sync.</p>
+              <p className="font-bold text-lg">Collab Flow</p>
             </Link>
           </div>
           <Link href={isSignIn ? "/sign-up" : "/sign-in"}>

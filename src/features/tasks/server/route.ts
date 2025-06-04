@@ -2,12 +2,38 @@ import { ID, Query } from "node-appwrite";
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { DATABASE_ID, MEMBERS_ID, PROJECTS_ID, TASKS_ID } from "@/config";
+import { DATABASE_ID, MEMBERS_ID, PROJECTS_ID, TASKS_ID, INVITES_ID } from "@/config";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { createAdminClient } from "@/lib/appwrite";
 import { getMember } from "@/features/members/utils";
 import { createTaskSchema } from "../schemas";
 import { Task, TaskStatus, TaskPriority } from "../types";
+
+// Helper function to create task assignment notification
+const createTaskNotification = async (databases: any, assigneeUserId: string, taskName: string, projectName: string, assignerName: string, taskId: string, workspaceId: string) => {
+  try {
+    console.log('Creating task notification for user:', assigneeUserId);
+    console.log('Task details:', { taskName, projectName, assignerName, taskId, workspaceId });
+    
+    const notification = await databases.createDocument(DATABASE_ID, INVITES_ID, ID.unique(), {
+      recipientId: assigneeUserId,
+      senderId: assignerName,
+      workspaceId: workspaceId,
+      workspaceName: taskName, // Task name will show in notification
+      type: "task_assignment", // NEW: Add this field to distinguish from invites
+      task_assignment: "task_assignment", // Your existing field
+      taskId: taskId, // Match your database field name
+      projectName: projectName, // Push projectName to show which project
+      createdAt: new Date().toISOString(),
+    });
+    
+    console.log('Task notification created successfully:', notification.$id);
+    return notification;
+  } catch (error) {
+    console.error('Failed to create task notification:', error);
+    throw error;
+  }
+};
 
 const app = new Hono()
   // CREATE new task
@@ -18,7 +44,6 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-
       const {
         name,
         status,
@@ -31,6 +56,8 @@ const app = new Hono()
         dependencyIds,
         priority = TaskPriority.LOW,
       } = c.req.valid("json");
+
+      console.log('Creating task with assigneeId:', assigneeId);
 
       const member = await getMember({
         databases,
@@ -72,9 +99,135 @@ const app = new Hono()
         priority,
       });
 
+      console.log('Task created successfully:', task.$id);
+
+      // Send notification if task is assigned to someone
+      if (assigneeId) {
+        try {
+          console.log('Processing notification for assigneeId:', assigneeId);
+          
+          // Get project details
+          const project = await databases.getDocument(DATABASE_ID, PROJECTS_ID, projectId);
+          console.log('Project found:', project.name);
+          
+          // Get assignee member details to get userId
+          const assigneeMember = await databases.getDocument(DATABASE_ID, MEMBERS_ID, assigneeId);
+          console.log('Assignee member found - userId:', assigneeMember.userId);
+          
+          // Don't send notification to yourself
+          if (assigneeMember.userId !== user.$id) {
+            console.log('Sending notification to different user');
+            
+            // Create notification
+            await createTaskNotification(
+              databases,
+              assigneeMember.userId,
+              name,
+              project.name,
+              user.name || user.email,
+              task.$id,
+              workspaceId
+            );
+            
+            console.log('Task notification sent successfully');
+          } else {
+            console.log('Skipping notification - user assigned task to themselves');
+          }
+        } catch (notificationError) {
+          console.error('Notification failed:', notificationError);
+          // Don't fail the task creation if notification fails
+        }
+      } else {
+        console.log('No assignee specified, skipping notification');
+      }
+
       return c.json({ data: task });
     }
   )
+
+  // PATCH (update) task
+  .patch(
+    "/:taskId",
+    sessionMiddleware,
+    zValidator("json", createTaskSchema.partial()),
+    async (c) => {
+      const user = c.get("user");
+      const databases = c.get("databases");
+      const {
+        name,
+        status,
+        projectId,
+        startDate,
+        dueDate,
+        assigneeId,
+        description,
+        dependencyIds,
+        priority,
+      } = c.req.valid("json");
+      const { taskId } = c.req.param();
+
+      console.log('Updating task:', taskId, 'with assigneeId:', assigneeId);
+
+      const existingTask = await databases.getDocument(DATABASE_ID, TASKS_ID, taskId);
+      console.log('Existing task assigneeId:', existingTask.assigneeId);
+
+      const member = await getMember({
+        databases,
+        workspaceId: existingTask.workspaceId,
+        userId: user.$id,
+      });
+
+      if (!member) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      // Check if assignee changed
+      const assigneeChanged = assigneeId && assigneeId !== existingTask.assigneeId;
+      console.log('Assignee changed:', assigneeChanged);
+
+      const task = await databases.updateDocument(DATABASE_ID, TASKS_ID, taskId, {
+        name,
+        status,
+        projectId,
+        startDate,
+        dueDate,
+        assigneeId,
+        description,
+        dependencyIds,
+        priority,
+      });
+
+      // Send notification if assignee changed
+      if (assigneeChanged) {
+        try {
+          console.log('Processing notification for assignee change');
+          
+          const project = await databases.getDocument(DATABASE_ID, PROJECTS_ID, projectId || existingTask.projectId);
+          const assigneeMember = await databases.getDocument(DATABASE_ID, MEMBERS_ID, assigneeId);
+          
+          // Don't send notification to yourself
+          if (assigneeMember.userId !== user.$id) {
+            await createTaskNotification(
+              databases,
+              assigneeMember.userId,
+              name || existingTask.name,
+              project.name,
+              user.name || user.email,
+              taskId,
+              existingTask.workspaceId
+            );
+            
+            console.log('Assignment change notification sent successfully');
+          }
+        } catch (notificationError) {
+          console.error('Assignment change notification failed:', notificationError);
+        }
+      }
+
+      return c.json({ data: task });
+    }
+  )
+
   // DELETE task
   .delete("/:taskId", sessionMiddleware, async (c) => {
     const user = c.get("user");
@@ -94,10 +247,11 @@ const app = new Hono()
     }
 
     await databases.deleteDocument(DATABASE_ID, TASKS_ID, taskId);
+
     return c.json({ data: { $id: task.$id } });
   })
 
-  // GET list of tasks (with filtering and search)
+  // GET list of tasks
   .get(
     "/",
     sessionMiddleware,
@@ -130,9 +284,6 @@ const app = new Hono()
         priority,
       } = c.req.valid("query");
 
-      // Debug logging
-      console.log("Search parameter received:", search);
-
       const member = await getMember({
         databases,
         workspaceId,
@@ -151,7 +302,6 @@ const app = new Hono()
       if (projectId) query.push(Query.equal("projectId", projectId));
       if (status) query.push(Query.equal("status", status));
       if (assigneeId) query.push(Query.equal("assigneeId", assigneeId));
-      
       if (startDate && dueDate) {
         query.push(Query.between("dueDate", startDate, dueDate));
       } else if (startDate) {
@@ -159,21 +309,14 @@ const app = new Hono()
       } else if (dueDate) {
         query.push(Query.lessThanEqual("dueDate", dueDate));
       }
-
       if (priority) query.push(Query.equal("priority", priority));
-      
-      // Search implementation - using your search_tasks index
+
       if (search && search.trim()) {
-        console.log("Adding search query for:", search);
-        // Since your index is on name,description, search on name will search both
         query.push(Query.search("name", search.trim()));
       }
 
-      console.log("Final query:", query);
-
       const tasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, query);
 
-      // Filter out undefined IDs for safety
       const projectIds = tasks.documents
         .map((task) => task.projectId)
         .filter((id): id is string => !!id);
@@ -222,59 +365,6 @@ const app = new Hono()
       });
 
       return c.json({ data: { ...tasks, documents: populatedTasks } });
-    }
-  )
-
-  
-
-  // PATCH (update) task
-  .patch(
-    "/:taskId",
-    sessionMiddleware,
-    zValidator("json", createTaskSchema.partial()),
-    async (c) => {
-      const user = c.get("user");
-      const databases = c.get("databases");
-
-      const {
-        name,
-        status,
-        projectId,
-        startDate,
-        dueDate,
-        assigneeId,
-        description,
-        dependencyIds,
-        priority,
-      } = c.req.valid("json");
-
-      const { taskId } = c.req.param();
-
-      const existingTask = await databases.getDocument(DATABASE_ID, TASKS_ID, taskId);
-
-      const member = await getMember({
-        databases,
-        workspaceId: existingTask.workspaceId,
-        userId: user.$id,
-      });
-
-      if (!member) {
-        return c.json({ error: "Unauthorized" }, 401);
-      }
-
-      const task = await databases.updateDocument(DATABASE_ID, TASKS_ID, taskId, {
-        name,
-        status,
-        projectId,
-        startDate,
-        dueDate,
-        assigneeId,
-        description,
-        dependencyIds,
-        priority,
-      });
-
-      return c.json({ data: task });
     }
   )
 

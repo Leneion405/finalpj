@@ -68,7 +68,7 @@ export const NoWorkspaceLanding = () => {
         <div className="text-center mb-16">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4 mr-2" />
-            Welcome to Team Sync
+            Welcome to Collab Flow
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -219,7 +219,7 @@ export const NoWorkspaceLanding = () => {
         {/* Features Section */}
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            Why choose Team Sync?
+            Why choose Collab Flow?
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">

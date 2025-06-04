@@ -12,11 +12,11 @@ import { TaskDate } from "./task-date";
 import { PopulatedTask, TaskPriority, TaskStatus } from "../types";
 
 const statusColorMap: Record<TaskStatus, string> = {
-  [TaskStatus.BACKLOG]: "bg-gray-500",
-  [TaskStatus.TODO]: "bg-blue-500",
-  [TaskStatus.IN_PROGRESS]: "bg-yellow-500",
-  [TaskStatus.IN_REVIEW]: "bg-purple-500",
-  [TaskStatus.DONE]: "bg-green-500",
+  [TaskStatus.BACKLOG]: "bg-purple-500",     // Purple for Backlog
+  [TaskStatus.TODO]: "bg-red-500",           // Red for Todo
+  [TaskStatus.IN_PROGRESS]: "bg-yellow-500", // Yellow for In Progress
+  [TaskStatus.IN_REVIEW]: "bg-blue-500",     // Blue for In Review
+  [TaskStatus.DONE]: "bg-green-500",         // Green for Done
 };
 
 const priorityColorMap: Record<TaskPriority, string> = {
@@ -88,6 +88,25 @@ export const columns: ColumnDef<PopulatedTask>[] = [
           <span className="text-sm">{assignee.name}</span>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: "startDate",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Start Date
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const startDate = row.original.startDate;
+      if (!startDate) {
+        return <span className="text-muted-foreground">No start date</span>;
+      }
+      return <TaskDate value={startDate} isDueDate={false} />;
     },
   },
   {

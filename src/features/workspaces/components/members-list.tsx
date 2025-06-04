@@ -243,13 +243,16 @@ export const MembersList = () => {
                       </div>
                       
                       <div className="flex items-center gap-3">
-                        <Badge 
+                       <Badge 
                           variant={getRoleBadgeVariant(getMemberRole(member))}
-                          className="flex items-center gap-1.5 px-3 py-1"
+                          className={`flex items-center gap-1.5 px-3 py-1 ${
+                            getMemberRole(member) === "Owner" ? "bg-blue-600 text-white" : ""
+                          }`}
                         >
                           {getRoleIcon(getMemberRole(member))}
                           {getMemberRoleDisplay(member)}
-                        </Badge>
+                      </Badge>
+
                         
                         {canEditMember(member) && (
                           <DropdownMenu>
@@ -339,7 +342,7 @@ export const MembersList = () => {
             <CardContent className="space-y-3">
               {/* Invite Code */}
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600">Code</label>
+                <label className="text-xs font-medium text-gray-600">Invite Code</label>
                 <div className="flex gap-1">
                   <Input 
                     value={workspace?.inviteCode || ""} 
@@ -362,7 +365,7 @@ export const MembersList = () => {
 
               {/* Invite Link */}
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600">Link</label>
+                <label className="text-xs font-medium text-gray-600">Invite Link</label>
                 <div className="flex gap-1">
                   <Input 
                     value={fullInviteLink} 
@@ -379,16 +382,18 @@ export const MembersList = () => {
                   </Button>
                 </div>
               </div>
-
+              <div >
+              <label className="text-xs font-medium text-gray-600">Invite via email</label>
               <Button
                 onClick={() => setEmailDialogOpen(true)}
                 variant="outline"
                 size="sm"
-                className="w-full h-8"
+                className="w-full h-8 mt-1"
               >
                 <Mail className="w-3 h-3 mr-1" />
                 Email
               </Button>
+              </div>
             </CardContent>
           </Card>
 

@@ -4,9 +4,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 
-type ResponseType = InferResponseType<
-  (typeof client.api.auth.register)["$post"]
->;
+type ResponseType = InferResponseType<(typeof client.api.auth.register)["$post"]>;
 type RequestType = InferRequestType<(typeof client.api.auth.register)["$post"]>;
 
 export const useRegister = () => {
@@ -16,16 +14,26 @@ export const useRegister = () => {
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async ({ json }) => {
       const response = await client.api.auth.register.$post({ json });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        // Type guard to check if errorData has an error property
+        if ('error' in errorData) {
+          throw new Error(errorData.error);
+        }
+        throw new Error("Registration failed");
+      }
+      
       return await response.json();
     },
     onSuccess: () => {
-      toast.success("Signed up.");
+      toast.success("Account created successfully!");
       queryClient.invalidateQueries({ queryKey: ["current"] });
-      router.push("/dashboard"); // ← Changed from "/" to "/dashboard"
+      router.push("/dashboard");
       router.refresh();
     },
-    onError: () => {
-      toast.error("Failed to sign up.");
+    onError: (error) => {
+      toast.error(error.message || "Failed to create account");
     },
   });
 
