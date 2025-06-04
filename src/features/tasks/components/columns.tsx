@@ -6,17 +6,18 @@ import { MemberAvatar } from "@/features/members/components/member-avatar";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { snakeCaseToTitleCase } from "@/lib/utils";
 import { TaskActions } from "./task-actions";
 import { TaskDate } from "./task-date";
 import { PopulatedTask, TaskPriority, TaskStatus } from "../types";
 
 const statusColorMap: Record<TaskStatus, string> = {
-  [TaskStatus.BACKLOG]: "bg-purple-500",     // Purple for Backlog
-  [TaskStatus.TODO]: "bg-red-500",           // Red for Todo
+  [TaskStatus.BACKLOG]: "bg-purple-500", // Purple for Backlog
+  [TaskStatus.TODO]: "bg-red-500", // Red for Todo
   [TaskStatus.IN_PROGRESS]: "bg-yellow-500", // Yellow for In Progress
-  [TaskStatus.IN_REVIEW]: "bg-blue-500",     // Blue for In Review
-  [TaskStatus.DONE]: "bg-green-500",         // Green for Done
+  [TaskStatus.IN_REVIEW]: "bg-blue-500", // Blue for In Review
+  [TaskStatus.DONE]: "bg-green-500", // Green for Done
 };
 
 const priorityColorMap: Record<TaskPriority, string> = {
@@ -205,3 +206,102 @@ export const columns: ColumnDef<PopulatedTask>[] = [
     },
   },
 ];
+
+// Mobile Card Component for individual tasks
+export const TaskCard = ({ task }: { task: PopulatedTask }) => {
+  const getPriorityBadge = (priority?: TaskPriority) => {
+    switch (priority) {
+      case TaskPriority.HIGH:
+        return (
+          <Badge className="bg-red-500 text-white text-xs">
+            HIGH
+          </Badge>
+        );
+      case TaskPriority.MEDIUM:
+        return (
+          <Badge className="bg-yellow-500 text-white text-xs">
+            MEDIUM
+          </Badge>
+        );
+      case TaskPriority.LOW:
+        return (
+          <Badge className="bg-green-500 text-white text-xs">
+            LOW
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="text-xs">
+            None
+          </Badge>
+        );
+    }
+  };
+
+  const getStatusBadge = (status: TaskStatus) => {
+    return (
+      <Badge className={`${statusColorMap[status]} text-white text-xs`}>
+        {snakeCaseToTitleCase(status)}
+      </Badge>
+    );
+  };
+
+  return (
+    <Card className="mb-3 hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        {/* Header with task name and actions */}
+        <div className="flex items-start justify-between mb-3">
+          <h3 className="font-semibold text-base leading-tight pr-2">{task.name}</h3>
+          <TaskActions id={task.$id} projectId={task.projectId}>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 flex-shrink-0">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </TaskActions>
+        </div>
+
+        {/* Status and Priority badges */}
+        <div className="flex items-center gap-2 mb-3">
+          {getStatusBadge(task.status)}
+          {getPriorityBadge(task.priority)}
+        </div>
+
+        {/* Project info */}
+        {task.project && (
+          <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-md">
+            <ProjectAvatar name={task.project.name} image={task.project.imageUrl} className="size-5" />
+            <span className="text-sm font-medium text-gray-700">{task.project.name}</span>
+          </div>
+        )}
+
+        {/* Assignee info */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-gray-600">Assignee:</span>
+          {task.assignee ? (
+            <div className="flex items-center gap-2">
+              <MemberAvatar name={task.assignee.name} className="size-5" />
+              <span className="text-sm">{task.assignee.name}</span>
+            </div>
+          ) : (
+            <span className="text-sm text-muted-foreground">Unassigned</span>
+          )}
+        </div>
+
+        {/* Dates */}
+        <div className="space-y-2">
+          {task.startDate && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-600">Start:</span>
+              <TaskDate value={task.startDate} isDueDate={false} />
+            </div>
+          )}
+          {task.dueDate && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-600">Due:</span>
+              <TaskDate value={task.dueDate} isDueDate={true} />
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

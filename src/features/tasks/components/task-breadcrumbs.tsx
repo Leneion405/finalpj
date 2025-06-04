@@ -4,14 +4,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/use-confirm";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
-import { Project } from "@/features/projects/types";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { useDeleteTask } from "../api/use-delete-task";
-import { Task } from "../types";
 
 interface TaskBreadcrumbsProps {
-  project: Project | null; // Allow null
-  task: Task;
+  project: any; // Allow any type to match API response
+  task: any; // Allow any type to match API response
 }
 
 export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
@@ -42,11 +40,11 @@ export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
   if (!project) {
     return (
       <div className="flex items-center gap-x-2">
-        <div className="flex items-center gap-x-2">
-          <p className="text-sm text-muted-foreground">Unknown Project</p>
-          <ChevronRightIcon className="size-4 text-muted-foreground" />
-          <p className="text-sm font-semibold">{task.name}</p>
-        </div>
+        <Link href={`/workspaces/${workspaceId}`}>
+          <p className="text-lg font-semibold">Unknown Project</p>
+        </Link>
+        <ChevronRightIcon className="size-4 lg:size-5 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">{task.name}</p>
         <Button
           className="ml-auto"
           variant="destructive"
@@ -70,12 +68,10 @@ export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
         className="size-6 lg:size-8"
       />
       <Link href={`/workspaces/${workspaceId}/projects/${project.$id}`}>
-        <p className="text-sm lg:text-lg font-semibold text-muted-foreground hover:opacity-75 transition">
-          {project.name}
-        </p>
+        <p className="text-lg font-semibold">{project.name}</p>
       </Link>
       <ChevronRightIcon className="size-4 lg:size-5 text-muted-foreground" />
-      <p className="text-sm lg:text-lg font-semibold">{task.name}</p>
+      <p className="text-sm text-muted-foreground">{task.name}</p>
       <Button
         className="ml-auto"
         variant="destructive"

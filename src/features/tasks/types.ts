@@ -51,6 +51,25 @@ export interface PopulatedTask extends Task {
   } | null;
 }
 
+// Flexible type for API responses
+export interface ApiTask {
+  [key: string]: any;
+  $id: string;
+  name: string;
+  status: TaskStatus;
+  projectId: string;
+  workspaceId: string;
+  position: number;
+  description?: string;
+  assigneeId?: string;
+  startDate?: string;
+  dueDate?: string;
+  dependencyIds?: string[];
+  priority?: TaskPriority;
+  project?: any;
+  assignee?: any;
+}
+
 // Legacy interface for backwards compatibility
 export interface TaskWithProject extends Task {
   project: {

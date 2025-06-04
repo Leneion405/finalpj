@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, Mail, User, FileText, CheckCircle, Shield, Crown, Home } from "lucide-react";
+import { Phone, Mail, User, FileText, CheckCircle, Shield, Crown, Home, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,8 +80,8 @@ export const MemberInfo = ({ memberId, workspaceId }: MemberInfoProps) => {
         <div className="flex items-center gap-x-2">
           <Button variant="outline" size="sm" asChild>
             <Link href={`/workspaces/${workspaceId}`}>
-              <Home className="size-4 mr-2" />
-              Home
+              <ArrowLeft></ArrowLeft>
+              Back
             </Link>
           </Button>
         </div>
