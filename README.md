@@ -36,16 +36,21 @@ These instructions will help you set up and run the project on your local machin
 
 1. **Clone the repository:**
 
+```bash
 git clone https://github.com/Leneion405/CollabFlow.git
 cd CollabFlow
+```
 
 2. **Install the required dependencies:**
 
+```bash
 bun install
+```
 
 3. **Configure environmental variables:**  
    Create a `.env.local` file in the project root and set the necessary environment variables.
 
+```
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 NEXT_PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
@@ -57,12 +62,19 @@ NEXT_PUBLIC_APPWRITE_MEMBERS_ID=
 NEXT_PUBLIC_APPWRITE_PROJECTS_ID=
 NEXT_PUBLIC_APPWRITE_TASKS_ID=
 NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID=
+NEXT_PUBLIC_APPWRITE_INVITATIONS_ID=
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=
 
 NEXT_APPWRITE_KEY=
+```
 
 4. **Run the development server:**
 
+```bash
 bun dev
+```
 
 5. **Start building and customizing your workspace management solution!**
 
