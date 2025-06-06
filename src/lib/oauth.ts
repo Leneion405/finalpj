@@ -1,5 +1,4 @@
-// src/lib/server/oauth.js
-// Reference: https://appwrite.io/docs/tutorials/nextjs-ssr-auth/step-7
+//D:\pj\finalpj\src\lib\oauth.ts
 "use server";
 
 import { createAdminClient } from "@/lib/appwrite";

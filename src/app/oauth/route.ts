@@ -1,7 +1,9 @@
-import { AUTH_COOKIE } from "@/features/auth/constants";
-import { createAdminClient } from "@/lib/appwrite";
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createAdminClient } from "@/lib/appwrite";
+import { AUTH_COOKIE } from "@/features/auth/constants";
 
+// This route handles the OAuth callback from Google
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
   const secret = request.nextUrl.searchParams.get("secret");
@@ -13,14 +15,15 @@ export async function GET(request: NextRequest) {
   const { account } = await createAdminClient();
   const session = await account.createSession(userId, secret);
 
-  // Only set secure: true in production!
-  const response = NextResponse.redirect(`${request.nextUrl.origin}/dashboard`);
-  response.cookies.set(AUTH_COOKIE, session.secret, {
+  // Set the session cookie so Hono and Next.js both recognize it
+  cookies().set(AUTH_COOKIE, session.secret, {
     path: "/",
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax", // "lax" is compatible with OAuth redirects
     secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
   });
 
-  return response;
+  // Redirect to dashboard with a flag for post-OAuth logic
+  return NextResponse.redirect(`${request.nextUrl.origin}/dashboard?oauth=success`);
 }
